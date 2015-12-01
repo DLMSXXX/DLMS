@@ -46,8 +46,8 @@ public class Sequencer {
 					String request = new String(receivePacket.getData());
 					InetAddress inetAddress = receivePacket.getAddress();
 					int port = receivePacket.getPort();
+					seqQueue.add(Integer.toString(++seqCount) + "|" + inetAddress + "|" + port + "|" + request);
 					synchronized (seqQueue) {
-						seqQueue.add(Integer.toString(++seqCount) + "|" + inetAddress + "|" + port + "|" + request);
 						String sendMessage = seqQueue.peek();
 						SeqSender sender1 = new SeqSender(RM1_PORT, sendMessage);
 						SeqSender sender2 = new SeqSender(RM2_PORT, sendMessage);
