@@ -16,7 +16,60 @@ import org.omg.PortableServer.POAPackage.WrongPolicy;
 public class dlmsFrontEnd extends dlmsPOA{	
 	
 	private int SequencerPortNumber = 2222;
+	private int RMPort = 3333;
+	private int RMNumber = 4;
 
+	static class BankReceiver extends Thread{
+		public String result = null;
+		public boolean down = false;
+		public void run() {
+			DatagramSocket aSocket = null;
+			try {
+				byte[] buffer = new byte[100];
+				DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
+				aSocket.setSoTimeout(1000);
+				try {
+					aSocket.receive(reply);
+				} catch (SocketTimeoutException e) {
+					// timeout exception.
+					System.out.println("Timeout reached!!! " + e);
+					down = true;
+					aSocket.close();
+				}
+				result = new String(reply.getData());
+				result = result.trim();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			aSocket.close();
+		}
+	}
+	
+	static class RMSender extends Thread{
+		private String sendMsg;
+		private int RMPortNumber;
+		public RMSender(String s, int port)
+		{
+			sendMsg = s;
+			RMPortNumber = port;
+		}
+		public void run() {
+			DatagramSocket aSocket = null;
+			try {
+				aSocket = new DatagramSocket();
+				InetAddress aHost = InetAddress.getByName("localhost");
+				byte[] m = sendMsg.getBytes();
+				DatagramPacket request = new DatagramPacket(m, m.length, aHost, RMPortNumber);
+				aSocket.send(request);
+			} catch (SocketException e) {
+				System.out.println("Socket: " + e.getMessage());
+			} catch (IOException e) {
+				System.out.println("IO: " + e.getMessage());
+			}
+			aSocket.close();
+		}
+	}
+	
 	@Override
 	public String openAccount(String Bank, String fName, String lName, String email, String phoneNumber,
 			String password) {
@@ -31,13 +84,9 @@ public class dlmsFrontEnd extends dlmsPOA{
 			byte[] m = toServer.getBytes();
 			DatagramPacket request = new DatagramPacket(m, m.length, aHost, SequencerPortNumber);
 			aSocket.send(request);	// send to Sequencer
-
-			byte[] buffer = new byte[100];
-			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-			aSocket.receive(reply);	// receive from bank
-			result = new String(reply.getData());
-			result = result.trim();
-					
+			aSocket.close();
+			result = RCS();
+							
 		} catch (SocketException e) {
 			System.out.println("Socket: " + e.getMessage());
 		} catch (IOException e) {
@@ -58,12 +107,8 @@ public class dlmsFrontEnd extends dlmsPOA{
 			byte[] m = toServer.getBytes();
 			DatagramPacket request = new DatagramPacket(m, m.length, aHost, SequencerPortNumber);
 			aSocket.send(request);	// send to Sequencer
-
-			byte[] buffer = new byte[100];
-			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-			aSocket.receive(reply);	// receive from bank
-			result = new String(reply.getData());
-			result = result.trim();
+			aSocket.close();
+			result = RCS();
 					
 		} catch (SocketException e) {
 			System.out.println("Socket: " + e.getMessage());
@@ -85,12 +130,8 @@ public class dlmsFrontEnd extends dlmsPOA{
 			byte[] m = toServer.getBytes();
 			DatagramPacket request = new DatagramPacket(m, m.length, aHost, SequencerPortNumber);
 			aSocket.send(request);	// send to Sequencer
-
-			byte[] buffer = new byte[100];
-			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-			aSocket.receive(reply);	// receive from bank
-			result = new String(reply.getData());
-			result = result.trim();
+			aSocket.close();
+			result = RCS();
 					
 		} catch (SocketException e) {
 			System.out.println("Socket: " + e.getMessage());
@@ -112,12 +153,8 @@ public class dlmsFrontEnd extends dlmsPOA{
 			byte[] m = toServer.getBytes();
 			DatagramPacket request = new DatagramPacket(m, m.length, aHost, SequencerPortNumber);
 			aSocket.send(request);	// send to Sequencer
-
-			byte[] buffer = new byte[100];
-			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-			aSocket.receive(reply);	// receive from bank
-			result = new String(reply.getData());
-			result = result.trim();
+			aSocket.close();
+			result = RCS();
 					
 		} catch (SocketException e) {
 			System.out.println("Socket: " + e.getMessage());
@@ -139,18 +176,80 @@ public class dlmsFrontEnd extends dlmsPOA{
 			byte[] m = toServer.getBytes();
 			DatagramPacket request = new DatagramPacket(m, m.length, aHost, SequencerPortNumber);
 			aSocket.send(request);	// send to Sequencer
-
-			byte[] buffer = new byte[100];
-			DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-			aSocket.receive(reply);	// receive from bank
-			result = new String(reply.getData());
-			result = result.trim();				
+			aSocket.close();
+			result = RCS();			
 			
 		} catch (SocketException e) {
 			System.out.println("Socket: " + e.getMessage());
 		} catch (IOException e) {
 			System.out.println("IO: " + e.getMessage());
 		}
+		return result;
+	}
+	
+	//method to receive from banks, compare and send to RMs
+	private String RCS()
+	{
+		String result = null;
+		// receive from banks
+		BankReceiver[] br = new BankReceiver[RMNumber];
+		for (int i = 0; i<RMNumber; i++)
+		{
+			br[i] = new BankReceiver();
+			br[i].start();
+		}
+		for (int i = 0; i<RMNumber; i++)
+		{
+			try {
+				br[i].join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		// compare
+		int downRM = 0;
+		for (int i = 0; i<RMNumber; i++)
+		{
+			if (br[i].down == true)
+			{
+				downRM = i+1;
+				break;
+			}
+		}
+		String toRM = null;
+		outerloop:
+		for (int i = 0; i<RMNumber; i++)
+		{
+			for (int j = 0; j<RMNumber; j++)
+			{
+				if(br[i].result.equals(br[j].result))
+				{
+					toRM = Integer.toString(downRM) + "," + br[i].result;
+					result = br[i].result;
+					break outerloop;
+				}
+			}
+		}
+		
+		// send to RMs
+		RMSender[] rs = new RMSender[RMNumber];
+		for (int i = 0; i<RMNumber; i++)
+		{
+			rs[i] = new RMSender(toRM, (RMPort + i));
+			rs[i].start();
+		}
+		for (int i = 0; i<RMNumber; i++)
+		{
+			try {
+				rs[i].join();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 		return result;
 	}
 
