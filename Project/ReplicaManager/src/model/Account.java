@@ -26,4 +26,11 @@ public class Account {
       password = _password;
       creditLimit = _creditLimit;
     } 
+    
+    public String toString() {
+        return "Customer [account=" + accountNumber + ", firstName=" + firstName + ", lastName=" + lastName + ", email="
+                        + emailAddress + ", phoneNumber=" + phoneNumber + ", password=" + password + ", creditLimit=" + creditLimit
+                        + "]" + "\n";
+    }
+
 }

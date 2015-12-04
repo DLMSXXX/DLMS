@@ -17,13 +17,6 @@ public class ReplicaManager {
     public int Bank_B_Port = 2;
     public int Bank_C_Port = 3;
     
-    public static final int BANK_A_ACCOUNT_UNIQUE_BASE = 1;
-    public static final int BANK_B_ACCOUNT_UNIQUE_BASE = 1;
-    public static final int BANK_C_ACCOUNT_UNIQUE_BASE = 1;
-    public static final int BANK_A_LOAN_UNIQUE_BASE = 1;
-    public static final int BANK_B_LOAN_UNIQUE_BASE = 1;
-    public static final int BANK_C_LOAN_UNIQUE_BASE = 1;
-    
     HashMap<String, BankServant> BankServantMap;
     
     private int[] other_rm;
@@ -43,9 +36,9 @@ public class ReplicaManager {
         //3 bank servants
         BankServantMap = new HashMap<String, BankServant>();
         //BankServant para: Bank port,AccountID_UniqueBase,LoanID_UniqueBase
-        BankServantMap.put("A", new BankServant(Bank_A_Port, new int[]{Bank_B_Port, Bank_C_Port}, BANK_A_LOAN_UNIQUE_BASE));
-        BankServantMap.put("B", new BankServant(Bank_B_Port, new int[]{Bank_A_Port, Bank_C_Port}, BANK_B_LOAN_UNIQUE_BASE));
-        BankServantMap.put("C", new BankServant(Bank_C_Port, new int[]{Bank_A_Port, Bank_B_Port}, BANK_C_LOAN_UNIQUE_BASE));
+        BankServantMap.put("A", new BankServant(Bank_A_Port, new int[]{Bank_B_Port, Bank_C_Port}));
+        BankServantMap.put("B", new BankServant(Bank_B_Port, new int[]{Bank_A_Port, Bank_C_Port}));
+        BankServantMap.put("C", new BankServant(Bank_C_Port, new int[]{Bank_A_Port, Bank_B_Port}));
         
         //receiver thread
         RMReceiver rmReceiver = new RMReceiver(RM_port);
