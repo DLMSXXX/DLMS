@@ -30,7 +30,7 @@ public class dlmsClient {
 	
 	public static void main(String[] args) throws IOException, InvalidName, NotFound, CannotProceed, org.omg.CosNaming.NamingContextPackage.InvalidName {
 
-		int userChoice=0;		
+		int userChoice = 0;		
 		Scanner keyboard = new Scanner(System.in);	
 		
 		showMenu();
@@ -81,8 +81,6 @@ public class dlmsClient {
 				String pw = keyboard.next();
 				String resultNumber = aDLMS.openAccount(Integer.toString(bankNumber),fn,ln,email,pn,pw);
 
-				if (Integer.parseInt(resultNumber) > 0)
-				{
 					System.out.println("Please remember your account number: " + resultNumber + ".");
 					System.out.println("Your new account has been created!");
 					// write log file
@@ -102,9 +100,7 @@ public class dlmsClient {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}			
-				}
-				else
-					System.out.println("You already have an accout!");
+				
 				System.out.println("**********************************");
 				showMenu();
 				break;
@@ -121,13 +117,13 @@ public class dlmsClient {
 				System.out.println("Please enter the loan amount...");
 				String l = keyboard.next();
 				String result = aDLMS.getLoan(Integer.toString(bankNumber), a, pw, l);
-				if (result.length() > 50){
+				if (result.equals("FAIL")){
 					System.out.println(result);
 				}
-				else if (result.length() > 10) {
+				else {
 					System.out.println("You have got your loan amount of $" + l + ". " + result);
 					// write log file
-					PrintWriter writer = null;
+					writer = null;
 					try {
 						writer = new PrintWriter(new FileWriter("Customer/" + a +".txt",true));
 						writer.println("Get loan from Bank " + bankNumber);
@@ -140,8 +136,6 @@ public class dlmsClient {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				} else {
-					System.out.println("Sorry, your credit has only $" + result + " left.");
 				}
 			
 				System.out.println("**********************************");
@@ -155,8 +149,7 @@ public class dlmsClient {
 				System.out.println("Please enter the loan ID... (Available from the LoanList.txt)");
 				String lid = keyboard.next();
 				System.out.println("Please enter the target bank number...");
-				String tbn = keyboard.next();
-				
+				String tbn = keyboard.next();			
 				result = aDLMS.transferLoan(lid, Integer.toString(bankNumber), tbn);
 				System.out.println(result);
 				System.out.println("**********************************");
