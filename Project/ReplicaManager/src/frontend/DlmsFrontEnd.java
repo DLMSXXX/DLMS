@@ -20,7 +20,7 @@ public class DlmsFrontEnd extends dlmsPOA {
         this.FEport = fe_port;
         
         FEReceiver = new FrontEndReceiver(FEport);
-        FEReceiver.run();
+        FEReceiver.start();
     }
     
     class FrontEndReceiver extends Thread {
@@ -161,7 +161,7 @@ public class DlmsFrontEnd extends dlmsPOA {
     @Override
     public String openAccount(String Bank, String fName, String lName, String email, String phoneNumber,
             String password) {
-        try {
+        /*try {
             
             // send request to sequencer
             FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "openAccount," + Bank + "," + fName + "," + lName + "," + email + ","
@@ -181,7 +181,7 @@ public class DlmsFrontEnd extends dlmsPOA {
             
         } catch (InterruptedException ex) {
             System.out.println(ex.toString());
-        }
+        }*/
         
         // !!!!!!need change
         return "Problem";
