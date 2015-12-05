@@ -13,9 +13,9 @@ import servant.BankServant;
 
 public class ReplicaManager {
     
-    public int Bank_A_Port = 1;
-    public int Bank_B_Port = 2;
-    public int Bank_C_Port = 3;
+    public int Bank_A_Port;
+    public int Bank_B_Port;
+    public int Bank_C_Port;
     
     HashMap<String, BankServant> BankServantMap;
     
