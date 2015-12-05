@@ -41,8 +41,8 @@ public class ReplicaManager {
         BankServantMap.put("C", new BankServant(Bank_C_Port, new int[]{Bank_A_Port, Bank_B_Port}));
         
         //receiver thread
-        RMReceiver rmReceiver = new RMReceiver(RM_port);
-        rmReceiver.run();
+        Thread receiver = new Thread(new RMReceiver(RM_port));
+        receiver.start();
         
     }
     
@@ -154,7 +154,6 @@ public class ReplicaManager {
 
         @Override
         public void run() {
-            
             try {
                 DatagramSocket serverSocket = new DatagramSocket(RMport);
                 

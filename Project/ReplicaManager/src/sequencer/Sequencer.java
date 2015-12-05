@@ -9,30 +9,24 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class Sequencer {
-
-    private int RM1_PORT;
-    private int RM2_PORT;
-    private int RM3_PORT;
-    private int RM4_PORT;
+    
+    private int[] bankA;
+    private int[] bankB;
+    private int[] bankC;
     
     private int Sequencer_port;
 
     Integer seqCount = new Integer(0);
     Queue<String> seqQueue = new LinkedList<String>();
 
-    public Sequencer(int rm1, int rm2, int rm3, int rm4, int sequencer_port) {
-        this.RM1_PORT = rm1;
-        this.RM2_PORT = rm2;
-        this.RM3_PORT = rm3;
-        this.RM4_PORT = rm4;
+    public Sequencer(int[] bankA, int[] bankB, int[] bankC, int sequencer_port) {
+        this.bankA = bankA;
+        this.bankB = bankB;
+        this.bankC = bankC;
         
         this.Sequencer_port = sequencer_port;
     }
 
-    /*public static void main(String[] args) {
-     SeqReceiver seqReceiver = new SeqReceiver(5000);
-     seqReceiver.run();
-     }*/
     class SeqReceiver implements Runnable {
 
         @SuppressWarnings("resource")
@@ -49,13 +43,15 @@ public class Sequencer {
                     String request = new String(receivePacket.getData());
                     InetAddress inetAddress = receivePacket.getAddress();
                     int port = receivePacket.getPort();
-                    seqQueue.add(Integer.toString(++seqCount) + "|" + inetAddress + "|" + port + "|" + request);
+                    
+                    seqQueue.add(Integer.toString(++seqCount) + "|" + request);
                     synchronized (seqQueue) {
                         String sendMessage = seqQueue.peek();
-                        SeqSender sender1 = new SeqSender(RM1_PORT, sendMessage);
-                        SeqSender sender2 = new SeqSender(RM2_PORT, sendMessage);
-                        SeqSender sender3 = new SeqSender(RM3_PORT, sendMessage);
-                        SeqSender sender4 = new SeqSender(RM4_PORT, sendMessage);
+                        //!!!!!! need add checking process to determine which bank
+                        SeqSender sender1 = new SeqSender(bankA[0], sendMessage);
+                        SeqSender sender2 = new SeqSender(bankA[1], sendMessage);
+                        SeqSender sender3 = new SeqSender(bankA[2], sendMessage);
+                        SeqSender sender4 = new SeqSender(bankA[3], sendMessage);
                         sender1.start();
                         sender2.start();
                         sender3.start();
@@ -70,6 +66,10 @@ public class Sequencer {
                         }
                         seqQueue.poll();
                     }
+                    
+                    //send sequence id back to front end
+                    DatagramPacket out = new DatagramPacket((seqCount+"").getBytes(), 1000, inetAddress, port);
+                    receiveSocket.send(out);
                 }
             } catch (SocketException e) {
                 System.out.println(e.getMessage());

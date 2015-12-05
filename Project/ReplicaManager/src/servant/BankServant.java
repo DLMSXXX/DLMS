@@ -418,6 +418,8 @@ public class BankServant implements BankServantInterface{
                             loan_HashMap.remove(content_array[2]);
                             loan.notify();
                         }
+                    }else{
+                        sendData = "Test".getBytes();
                     }
 
                     DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
