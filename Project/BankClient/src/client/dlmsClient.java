@@ -47,7 +47,7 @@ public class dlmsClient {
         }
     }
     
-    public void sendRequest(int bank, String request, String[] infoArray){
+    public void sendRequest(String bank, String request, String[] infoArray){
         try{
             String path = System.getProperty("user.dir");
             path = path.substring(0, path.lastIndexOf("/") + 1);
@@ -62,11 +62,11 @@ public class dlmsClient {
             dlms aDLMS = dlmsHelper.narrow(obj);
             
             if(request.equals("openAccount")){
-                System.out.println(aDLMS.openAccount("", infoArray[0], infoArray[1], infoArray[2], infoArray[3], infoArray[4]));
+                System.out.println(aDLMS.openAccount(bank, infoArray[0], infoArray[1], infoArray[2], infoArray[3], infoArray[4]));
             }else if(request.equals("getLoan")){
-                System.out.println(aDLMS.getLoan("", infoArray[0], infoArray[1], infoArray[2]));
+                System.out.println(aDLMS.getLoan(bank, infoArray[0], infoArray[1], infoArray[2]));
             }else if(request.equals("transferLoan")){
-                System.out.println(aDLMS.transferLoan(infoArray[0], "", infoArray[1]));
+                System.out.println(aDLMS.transferLoan(infoArray[0], bank, infoArray[1]));
             }
             
         }catch(Exception ex){
@@ -90,23 +90,11 @@ public class dlmsClient {
             }
 
             System.out.println("Please choose a bank:");
-            System.out.println("1. " + 2298 + "\n2. " + 5298
-                    + "\n3. " + 7298);
+            System.out.println("A. " + "Bank A" + "\nB. " + "Bank B"
+                    + "\nC. " + "Bank C");
 
             bufferRead = new BufferedReader(new InputStreamReader(System.in));
             String bank = bufferRead.readLine();
-            int bank_port;
-
-            if (bank.equals("1")) {
-                bank_port = 2298;
-            } else if (bank.equals("2")) {
-                bank_port = 5298;
-            } else if (bank.equals("3")) {
-                bank_port = 7298;
-            } else {
-                System.out.println("Illegal Input, please choice 1 or 2 or 3");
-                return;
-            }
 
             if (choice.equals("1")) {
 
@@ -115,7 +103,7 @@ public class dlmsClient {
                 String info = bufferRead.readLine();
                 String[] infoArray = info.split(",");
 
-                sendRequest(bank_port, "openAccount", infoArray);
+                sendRequest(bank, "openAccount", infoArray);
 
             } else if (choice.equals("2")) {
 
@@ -124,7 +112,7 @@ public class dlmsClient {
                 String info = bufferRead.readLine();
                 String[] infoArray = info.split(",");
 
-                sendRequest(bank_port, "getLoan", infoArray);
+                sendRequest(bank, "getLoan", infoArray);
 
             } else if (choice.equals("3")) {
                 System.out.println("Please enter your information(loan ID, target bank)");
@@ -132,7 +120,7 @@ public class dlmsClient {
                 String info = bufferRead.readLine();
                 String[] infoArray = info.split(",");
 
-                sendRequest(bank_port, "transferLoan", infoArray);
+                sendRequest(bank, "transferLoan", infoArray);
 
             } else {
                 System.out.println("Illegal Input, please choice 1 or 2 or 3");

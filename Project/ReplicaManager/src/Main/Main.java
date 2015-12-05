@@ -26,8 +26,9 @@ public class Main {
         byte[] _id = _rootPOA.activate_object(FE);
         org.omg.CORBA.Object _ref = _rootPOA.id_to_reference(_id);
         String _ior = _orb.object_to_string(_ref);
-        
-        PrintWriter _file = new PrintWriter("FEOR.txt");
+        String path = System.getProperty("user.dir");
+            path = path.substring(0, path.lastIndexOf("/") + 1);
+        PrintWriter _file = new PrintWriter(path +"FEOR.txt");
         _file.println(_ior);
         _file.close();
 
