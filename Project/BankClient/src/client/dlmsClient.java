@@ -27,8 +27,24 @@ public class dlmsClient {
         orb = ORB.init(args, null);
     }
     
-    public static void main(String[] args) {
-
+    public static void main(String[] args) throws IOException {
+        dlmsClient client = new dlmsClient(args);
+        
+        System.out.println("Welcome to our bank system customer client!");
+        boolean login = true;
+        while(login){
+            client.console();
+            System.out.println("Do you have any other operation to do?\n1. Yes\n2. No");
+            
+            BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
+	    String choice = bufferRead.readLine();
+            
+            if(choice.equals("2")){
+                login = false;
+                System.out.println("Have a nice day!");
+            }
+            System.out.println("---------------------------");
+        }
     }
     
     public void sendRequest(int bank, String request, String[] infoArray){
