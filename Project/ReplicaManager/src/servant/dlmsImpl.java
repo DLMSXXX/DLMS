@@ -100,8 +100,8 @@ public class dlmsImpl {
                         loanAmountOfThisBank += Integer.parseInt(loanAmount);
                         int[] otherPort = new int[]{2};
                         int a = 0;
-                        for(String s: portMap.keySet()){
-                            if(!s.equals(Bank)){
+                        for (String s : portMap.keySet()) {
+                            if (!s.equals(Bank)) {
                                 otherPort[a++] = portMap.get(s);
                             }
                         }
@@ -187,8 +187,8 @@ public class dlmsImpl {
 
     public String transferLoan(String loanID, String currentBank, String otherBank) {
         int portNumber = 0;
-        for(String s : portMap.keySet()){
-            if(s.equals(otherBank)){
+        for (String s : portMap.keySet()) {
+            if (s.equals(otherBank)) {
                 portNumber = portMap.get(s);
             }
         }
@@ -237,7 +237,6 @@ public class dlmsImpl {
                         return "Done";
                     } else {
                         message = "rollback:" + transferCustomer.getFirstName() + "," + accountNumber + "," + id + ":";
-                        ;
                         client = new BankAsClient(Integer.valueOf(otherBank), message);
                         Thread th1 = client.start();
                         try {
@@ -253,6 +252,7 @@ public class dlmsImpl {
     }
 
     class BankAsReceiver extends Thread {
+
         @Override
         public void run() {
             try {
@@ -272,13 +272,13 @@ public class dlmsImpl {
                     if (elements.length == 2) {
                         if (Integer.parseInt(elements[0]) == (lastSeq + 1)) {
                             if (first.equals("openAccount")) {
-                                send = openAccount(funcPara[0],funcPara[1], funcPara[2], funcPara[3], funcPara[4], funcPara[5]);
+                                send = openAccount(funcPara[0], funcPara[1], funcPara[2], funcPara[3], funcPara[4], funcPara[5]);
                             } else if (first.equals("getLoan")) {
-                                send = getLoan(funcPara[0],funcPara[1], funcPara[2], funcPara[3]);
+                                send = getLoan(funcPara[0], funcPara[1], funcPara[2], funcPara[3]);
                             } else if (first.equals("transferLoan")) {
-                                send = transferLoan(funcPara[0],funcPara[1], funcPara[2]);
+                                send = transferLoan(funcPara[0], funcPara[1], funcPara[2]);
                             } else if (first.equals("delayPayment")) {
-                                send = delayPayment(funcPara[0],funcPara[1], funcPara[2], funcPara[3]);
+                                send = delayPayment(funcPara[0], funcPara[1], funcPara[2], funcPara[3]);
                             } else if (first.equals("printCustomerInfo")) {
                                 send = printCustomerInfo(funcPara[0]);
                             }
@@ -371,7 +371,8 @@ public class dlmsImpl {
         }
     }
 
-    class BankAsSend extends Thread{
+    class BankAsSend extends Thread {
+
         private int otherBankPort;
         private String content;
         private String result;
@@ -380,7 +381,7 @@ public class dlmsImpl {
             this.otherBankPort = otherBankPort;
             this.content = content;
         }
-        
+
         public void run() {
             try {
                 DatagramSocket clientSocket = new DatagramSocket();
@@ -397,8 +398,8 @@ public class dlmsImpl {
             }
         }
     }
-    
-    class BankAsClient implements Runnable{
+
+    class BankAsClient implements Runnable {
 
         private int otherBankPort;
         private String content;

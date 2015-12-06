@@ -26,7 +26,9 @@ public class DlmsFrontEnd extends dlmsPOA {
         FEReceiver = new FrontEndReceiver(FEport);
         FEReceiver.start();
     }
+
     
+
     class FrontEndReceiver extends Thread {
         int FEport;
         
@@ -183,32 +185,123 @@ public class DlmsFrontEnd extends dlmsPOA {
         return "Got problem on Front End";
     }
 
+        
+    @Override
+    public String transferLoan(String loanID, String currentBank, String otherBank) {
+        FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "transferLoan#" + loanID + "," + currentBank + "," + otherBank + "#");
+        sender.run();
+
+        String request_id = sender.result;
+        long startTime = System.currentTimeMillis();
+        
+        //There is no result from bank server
+        while(ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000){
+            try {
+                sleep(5000);
+                
+            } catch (Exception ex) {
+                System.out.println(ex);
+            }
+        }
+        
+        while(ResultMap.get(request_id).size() < 4 && (System.currentTimeMillis() - startTime) < 60000){
+        }
+        
+        // Time out problem
+        if((System.currentTimeMillis() - startTime) > 60000){
+        
+        }else{
+            // Everything is ok, now we check all result
+            Hashtable<String, String> re_map = ResultMap.get(request_id);
+            if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // all equals
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
+                
+            }else if(!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM1 have problem
+                
+            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3")))) 
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM2 have problem
+                
+            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM3 have problem
+                
+            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM4 have problem
+                
+            }
+        }
+        
+        return "Got problem on Front End";
+    }
+    
     @Override
     public String getLoan(String Bank, String accountNumber, String password, String loanAmount) {
         FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "getLoan#" + Bank + "," + accountNumber + "," + password + "," + loanAmount + "#");
         sender.run();
 
         String request_id = sender.result;
-        // TODO Auto-generated method stub
-        /*String result = null;
-        DatagramSocket aSocket = null;
-        try {
-            aSocket = new DatagramSocket();
-            InetAddress aHost = InetAddress.getByName("localhost");
-            String toServer = "getLoan," + Bank + "," + accountNumber + "," + password + "," + loanAmount;
-            byte[] m = toServer.getBytes();
-            DatagramPacket request = new DatagramPacket(m, m.length, aHost, SequencerPortNumber);
-            aSocket.send(request);	// send to Sequencer
-            aSocket.close();
-            result = RCS();
-
-        } catch (SocketException e) {
-            System.out.println("Socket: " + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("IO: " + e.getMessage());
+        long startTime = System.currentTimeMillis();
+        
+        //There is no result from bank server
+        while(ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000){
+            try {
+                sleep(5000);
+                
+            } catch (Exception ex) {
+                System.out.println(ex);
+            }
         }
-        return result;*/
-        return request_id.trim();
+        
+        while(ResultMap.get(request_id).size() < 4 && (System.currentTimeMillis() - startTime) < 60000){
+        }
+        
+        // Time out problem
+        if((System.currentTimeMillis() - startTime) > 60000){
+        
+        }else{
+            // Everything is ok, now we check all result
+            Hashtable<String, String> re_map = ResultMap.get(request_id);
+            if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // all equals
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
+                
+            }else if(!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM1 have problem
+                
+            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3")))) 
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM2 have problem
+                
+            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM3 have problem
+                
+            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM4 have problem
+                
+            }
+        }
+        
+        return "Got problem on Front End";
     }
 
     @Override
@@ -218,26 +311,57 @@ public class DlmsFrontEnd extends dlmsPOA {
 
         String request_id = sender.result;
         
-        /*
-        String result = null;
-        DatagramSocket aSocket = null;
-        try {
-            aSocket = new DatagramSocket();
-            InetAddress aHost = InetAddress.getByName("localhost");
-            String toServer = "delayPayment," + Bank + "," + loanID + "," + currentD + "," + newD;
-            byte[] m = toServer.getBytes();
-            DatagramPacket request = new DatagramPacket(m, m.length, aHost, SequencerPortNumber);
-            aSocket.send(request);	// send to Sequencer
-            aSocket.close();
-            result = RCS();
-
-        } catch (SocketException e) {
-            System.out.println("Socket: " + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("IO: " + e.getMessage());
+        long startTime = System.currentTimeMillis();
+        
+        //There is no result from bank server
+        while(ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000){
+            try {
+                sleep(5000);
+                
+            } catch (Exception ex) {
+                System.out.println(ex);
+            }
         }
-        return result;*/
-        return request_id.trim();
+        
+        while(ResultMap.get(request_id).size() < 4 && (System.currentTimeMillis() - startTime) < 60000){
+        }
+        
+        // Time out problem
+        if((System.currentTimeMillis() - startTime) > 60000){
+        
+        }else{
+            // Everything is ok, now we check all result
+            Hashtable<String, String> re_map = ResultMap.get(request_id);
+            if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // all equals
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
+                
+            }else if(!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM1 have problem
+                
+            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3")))) 
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM2 have problem
+                
+            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM3 have problem
+                
+            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM4 have problem
+                
+            }
+        }
+        
+        return "Got problem on Front End";
     }
 
     @Override
@@ -248,55 +372,57 @@ public class DlmsFrontEnd extends dlmsPOA {
 
         String request_id = sender.result;
         
-        /*
-        String result = null;
-        DatagramSocket aSocket = null;
-        try {
-            aSocket = new DatagramSocket();
-            InetAddress aHost = InetAddress.getByName("localhost");
-            String toServer = "printCustomerInfo," + Bank;
-            byte[] m = toServer.getBytes();
-            DatagramPacket request = new DatagramPacket(m, m.length, aHost, SequencerPortNumber);
-            aSocket.send(request);	// send to Sequencer
-            aSocket.close();
-            result = RCS();
-
-        } catch (SocketException e) {
-            System.out.println("Socket: " + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("IO: " + e.getMessage());
-        }
-        return result;*/
-        return request_id.trim();
-    }
-
-    @Override
-    public String transferLoan(String loanID, String currentBank, String otherBank) {
+        long startTime = System.currentTimeMillis();
         
-        FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "transferLoan#" + loanID + "," +  currentBank + "," + otherBank + "#");
-        sender.run();
-
-        String request_id = sender.result;
-        /*
-        String result = null;
-        DatagramSocket aSocket = null;
-        try {
-            aSocket = new DatagramSocket();
-            InetAddress aHost = InetAddress.getByName("localhost");
-            String toServer = "transferLoan," + loanID + "," + currentBank + "," + otherBank;
-            byte[] m = toServer.getBytes();
-            DatagramPacket request = new DatagramPacket(m, m.length, aHost, SequencerPortNumber);
-            aSocket.send(request);	// send to Sequencer
-            aSocket.close();
-            result = RCS();
-
-        } catch (SocketException e) {
-            System.out.println("Socket: " + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("IO: " + e.getMessage());
+        //There is no result from bank server
+        while(ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000){
+            try {
+                sleep(5000);
+                
+            } catch (Exception ex) {
+                System.out.println(ex);
+            }
         }
-        return result;*/
-        return request_id.trim();
+        
+        while(ResultMap.get(request_id).size() < 4 && (System.currentTimeMillis() - startTime) < 60000){
+        }
+        
+        // Time out problem
+        if((System.currentTimeMillis() - startTime) > 60000){
+        
+        }else{
+            // Everything is ok, now we check all result
+            Hashtable<String, String> re_map = ResultMap.get(request_id);
+            if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // all equals
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
+                
+            }else if(!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM1 have problem
+                
+            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3")))) 
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM2 have problem
+                
+            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM3 have problem
+                
+            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+                    && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                // RM4 have problem
+                
+            }
+        }
+        
+        return "Got problem on Front End";
     }
 
     //method to receive from banks, compare and send to RMs
