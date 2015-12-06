@@ -103,7 +103,7 @@ public class BankServant implements BankServantInterface {
     }
 
     @Override
-    public String getLoan(String bank, String accountNumber, String password, String loanAmount) {
+    public String getLoan(String bank, String accountNumber, String password, String loanAmount, String sequenceId) {
         Account foundAccount = null;
         Loan loan = null;
 
@@ -149,7 +149,7 @@ public class BankServant implements BankServantInterface {
             debt += Integer.parseInt(client0.getResult()) + Integer.parseInt(client1.getResult());
 
             if (foundAccount.creditLimit - debt >= 0) {
-                loan = new Loan(accountNumber, loanAmount, DEFAULT_DUEDATE);
+                loan = new Loan(sequenceId, accountNumber, loanAmount, DEFAULT_DUEDATE);
                 loan_HashMap.put(loan.ID, loan);
             }
         }
@@ -350,7 +350,7 @@ public class BankServant implements BankServantInterface {
                                 
                                 break;
                             case "getLoan":
-                                result = sequenceId + "%" + rm_port + "#" + getLoan(requestPara[0], requestPara[1], requestPara[2], requestPara[3]) + "#";
+                                result = sequenceId + "%" + rm_port + "#" + getLoan(requestPara[0], requestPara[1], requestPara[2], requestPara[3], sequenceId) + "#";
                                 
                                 break;
                             case "transferLoan":

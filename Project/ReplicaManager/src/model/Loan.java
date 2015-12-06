@@ -22,11 +22,4 @@ public class Loan {
         dueDate = _dueDate;
     }
     
-    //Initialize
-    public Loan(String _accountNumber, String _amount, String _dueDate){
-        ID = System.currentTimeMillis()+"";
-        accountNumber = _accountNumber;
-        amount = _amount;
-        dueDate = _dueDate;
-    }
 }
