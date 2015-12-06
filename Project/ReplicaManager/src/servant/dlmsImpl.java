@@ -13,11 +13,11 @@ import model2.Loan;
 
 public class dlmsImpl {
 
-    private HashMap<Character, List<Customer>> accounts = new HashMap<Character, List<Customer>>();
+    private HashMap<String, List<Customer>> accounts = new HashMap<String, List<Customer>>();
     ;
 	private HashMap<Integer, Loan> loans = new HashMap<Integer, Loan>();
-    public static final Character[] alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-        'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+    public static final String[] alphabet = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
+        "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
     public String bankName;
     public HashMap<String, Integer> portMap;
     private int lastSeq = 0;
@@ -29,8 +29,8 @@ public class dlmsImpl {
         this.portMap = portMap;
         this.fePort = fePort;
         this.rmPort = rmPort;
-        for (Character ch : alphabet) {
-            accounts.put(ch, null);
+        for (String ss : alphabet) {
+            accounts.put(ss, null);
         }
 
         // Spawn a new thread to listen to the upcoming UDP packet
@@ -53,7 +53,7 @@ public class dlmsImpl {
             String password) {
         String accountNumber;
         Customer customer = new Customer(null, fName, lName, email, phoneNumber, password);
-        Character key = fName.charAt(0);
+        String key = fName.substring(0, 1);
         int accountNum = (fName + lName).hashCode();
         // Lock the key
         synchronized (key) {
@@ -86,7 +86,7 @@ public class dlmsImpl {
      */
     public String getLoan(String Bank, String accountNumber, String password, String loanAmount) {
         int loanAmountOfThisBank = 0;
-        for (Character key : accounts.keySet()) {
+        for (String key : accounts.keySet()) {
             if (accounts.get(key) != null) {
                 List<Customer> listCustomer = accounts.get(key);
                 for (int i = 0; i < listCustomer.size(); i++) {
@@ -170,7 +170,7 @@ public class dlmsImpl {
      */
     public String printCustomerInfo(String Bank) {
         String info = "Information:\n";
-        for (Character key : accounts.keySet()) {
+        for (String key : accounts.keySet()) {
             if (accounts.get(key) != null) {
                 List<Customer> printList = accounts.get(key);
                 for (int i = 0; i < printList.size(); i++) {
@@ -204,9 +204,9 @@ public class dlmsImpl {
                 String dueDate = loans.get(key).getDueDate();
                 Customer transferCustomer = null;
                 // Get corresponding customer information
-                for (Character ch : accounts.keySet()) {
-                    if (accounts.get(ch) != null) {
-                        List<Customer> customerList = accounts.get(ch);
+                for (String ss : accounts.keySet()) {
+                    if (accounts.get(ss) != null) {
+                        List<Customer> customerList = accounts.get(ss);
                         for (int i = 0; i < customerList.size(); i++) {
                             Customer cus = customerList.get(i);
                             if (cus.getAccountNumber().equals(accountNumber)) {
@@ -306,7 +306,7 @@ public class dlmsImpl {
                         if (request_array[0].equals("search")) {
                             String[] content_array = request_array[1].split(",");
                             Customer foundAccount = null;
-                            for (Character key : accounts.keySet()) {
+                            for (String key : accounts.keySet()) {
                                 if (accounts.get(key) != null) {
                                     List<Customer> listCustomer = accounts.get(key);
                                     for (int i = 0; i < listCustomer.size(); i++) {
@@ -341,7 +341,7 @@ public class dlmsImpl {
                             List<Customer> list = new LinkedList<Customer>(
                                     accounts.get(newCustomer.getFirstName().charAt(0)));
                             list.add(newCustomer);
-                            accounts.put(newCustomer.getFirstName().charAt(0), list);
+                            accounts.put(newCustomer.getFirstName().substring(0, 1), list);
                             sendData = "Yes".getBytes();
                         } else if (request_array[0].equals("rollback")) {
                             String[] content_array = request_array[1].split("#");
