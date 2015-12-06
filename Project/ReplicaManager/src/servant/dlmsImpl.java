@@ -252,13 +252,7 @@ public class dlmsImpl {
         return "FAIL";
     }
 
-    class BankAsReceiver implements Runnable {
-
-        public void start() {
-            new Thread(this).start();
-        }
-
-        @SuppressWarnings("resource")
+    class BankAsReceiver extends Thread {
         @Override
         public void run() {
             try {
@@ -269,24 +263,24 @@ public class dlmsImpl {
                     DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                     serverSocket.receive(receivePacket);
                     String sentence = new String(receivePacket.getData());
-
-                    String elements[] = sentence.split("|");
-                    String func[] = elements[elements.length - 1].split(",");
+                    String elements[] = sentence.split("%");
+                    String func[] = elements[elements.length - 1].split("#");
+                    String funcPara[] = func[1].split(",");
                     String first = func[0];
                     String send = null;
 
-                    if (elements.length == 4) {
+                    if (elements.length == 2) {
                         if (Integer.parseInt(elements[0]) == (lastSeq + 1)) {
                             if (first.equals("openAccount")) {
-                                send = openAccount(func[1], func[2], func[3], func[4], func[5], func[6]);
+                                send = openAccount(funcPara[0],funcPara[1], funcPara[2], funcPara[3], funcPara[4], funcPara[5]);
                             } else if (first.equals("getLoan")) {
-                                send = getLoan(func[1], func[2], func[3], func[4]);
+                                send = getLoan(funcPara[0],funcPara[1], funcPara[2], funcPara[3]);
                             } else if (first.equals("transferLoan")) {
-                                send = transferLoan(func[1], func[2], func[3]);
+                                send = transferLoan(funcPara[0],funcPara[1], funcPara[2]);
                             } else if (first.equals("delayPayment")) {
-                                send = delayPayment(func[1], func[2], func[3], func[4]);
+                                send = delayPayment(funcPara[0],funcPara[1], funcPara[2], funcPara[3]);
                             } else if (first.equals("printCustomerInfo")) {
-                                send = printCustomerInfo(func[1]);
+                                send = printCustomerInfo(funcPara[0]);
                             }
                             lastSeq++;
                         } else {
