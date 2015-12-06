@@ -108,8 +108,8 @@ public class DlmsFrontEnd extends dlmsPOA {
             String password) {
 
         // send request to sequencer
-        FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "openAccount," + Bank + "," + fName + "," + lName + "," + email + ","
-                + phoneNumber + "," + password);
+        FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "openAccount#" + Bank + "," + fName + "," + lName + "," + email + ","
+                + phoneNumber + "," + password + "#");
         sender.run();
 
         String request_id = sender.result;
