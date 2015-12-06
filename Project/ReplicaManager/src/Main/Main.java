@@ -36,13 +36,13 @@ public class Main {
         _orb.run();
         
         // run sequencer
-        /*Sequencer sequencer = new Sequencer(new int[]{6000, 6003, 6006, 6009}, 
+        Sequencer sequencer = new Sequencer(new int[]{6000, 6003, 6006, 6009},
                                             new int[]{6001, 6004, 6007, 6010},
-                                            new int[]{6002, 6005, 6008, 6011}, 
+                                            new int[]{6002, 6005, 6008, 6011},
                                             5000);
         
         // run replica manager
-        ReplicaManager rm1 = new ReplicaManager(6000, 6001, 6002, 7001, new int[]{7002, 7003, 7004});
+        /*ReplicaManager rm1 = new ReplicaManager(6000, 6001, 6002, 7001, new int[]{7002, 7003, 7004});
         ReplicaManager rm2 = new ReplicaManager(6003, 6004, 6005, 7002, new int[]{7001, 7003, 7004});
         ReplicaManager rm3 = new ReplicaManager(6006, 6007, 6008, 7003, new int[]{7001, 7002, 7004});
         ReplicaManager rm4 = new ReplicaManager(6009, 6010, 6011, 7004, new int[]{7001, 7002, 7003});
