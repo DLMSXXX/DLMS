@@ -40,10 +40,10 @@ public class DlmsFrontEnd extends dlmsPOA {
             try {
                 DatagramSocket serverSocket = new DatagramSocket(FEport);
 
-                byte[] receiveData = new byte[1024];
-                byte[] sendData = new byte[1024];
-
                 while (true) {
+                    byte[] receiveData = new byte[1024];
+                    byte[] sendData = new byte[1024];
+                
                     DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                     serverSocket.receive(receivePacket);
                     String sentence = new String(receivePacket.getData());
@@ -344,7 +344,12 @@ public class DlmsFrontEnd extends dlmsPOA {
     @Override
     public String getLoan(String Bank, String accountNumber, String password, String loanAmount) {
         FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "getLoan#" + Bank + "," + accountNumber + "," + password + "," + loanAmount + "#");
-        sender.run();
+        sender.start();
+        try {
+            sender.join();
+        } catch (InterruptedException ex) {
+            
+        }
 
         String request_id = sender.result;
         long startTime = System.currentTimeMillis();

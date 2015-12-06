@@ -67,8 +67,6 @@ public class Sequencer {
                                 System.out.println(e.getMessage());
                             }
 
-                            System.out.println("Sequencer send out request: " + sendMessage);
-
                             break;
                         case "B":
                             sender1 = new SeqSender(bankB[0], sendMessage);
@@ -125,10 +123,10 @@ public class Sequencer {
             try {
                 DatagramSocket receiveSocket = new DatagramSocket(Sequencer_port);
 
-                byte[] receiveData = new byte[1024];
-                byte[] sendData = new byte[1024];
-
                 while (true) {
+                    byte[] receiveData = new byte[1024];
+                    byte[] sendData = new byte[1024];
+                    
                     DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                     receiveSocket.receive(receivePacket);
                     String request = new String(receivePacket.getData());
@@ -137,7 +135,6 @@ public class Sequencer {
 
                     seqQueue.add(Integer.toString(++seqCount) + "%" + request);
 
-                    System.out.println("Sequencer received request: " + request);
                     sendData = (seqCount + "").getBytes();
 
                     //send sequence id back to front end
@@ -175,6 +172,7 @@ public class Sequencer {
                 sendData = requestMessage.getBytes();
                 DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, inetAddress, serverPort);
                 sendSocket.send(sendPacket);
+                
 
             } catch (SocketException e) {
                 System.out.println(e.getMessage());
