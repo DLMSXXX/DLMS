@@ -157,28 +157,44 @@ public class DlmsFrontEnd extends dlmsPOA {
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // all equals
+                // Send status to all the RM
+                
+                
+                // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
                 
             }else if(!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM1 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM2")));
             }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3")))) 
                     && !re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM2 have problem
-                
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))
                     && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM3 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM4 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }
         }
         
@@ -217,28 +233,48 @@ public class DlmsFrontEnd extends dlmsPOA {
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // all equals
+                // Send status to all the RM
+                
+                
+                // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
                 
             }else if(!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM1 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM2")));
             }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3")))) 
                     && !re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM2 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))
                     && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM3 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM4 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }
         }
         
@@ -276,28 +312,48 @@ public class DlmsFrontEnd extends dlmsPOA {
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // all equals
+                // Send status to all the RM
+                
+                
+                // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
                 
             }else if(!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM1 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM2")));
             }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3")))) 
                     && !re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM2 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))
                     && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM3 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM4 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }
         }
         
@@ -336,28 +392,47 @@ public class DlmsFrontEnd extends dlmsPOA {
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // all equals
-                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }else if(!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM1 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM2")));
             }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3")))) 
                     && !re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM2 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))
                     && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM3 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM4 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }
         }
         
@@ -397,28 +472,48 @@ public class DlmsFrontEnd extends dlmsPOA {
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // all equals
+                // Send status to all the RM
+                
+                
+                // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
                 
             }else if(!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM1 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM2")));
             }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3")))) 
                     && !re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM2 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))
                     && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM3 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
                 // RM4 have problem
+                // Send status to all the RM
                 
+                
+                // Send back correct result to FE
+                return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }
         }
         
