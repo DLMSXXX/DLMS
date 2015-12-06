@@ -118,7 +118,7 @@ public class BankServant implements BankServantInterface {
 
         if (foundAccount != null && foundAccount.password.equals(password)) {
             
-            int[] rest_port = new int[]{};
+            int[] rest_port = new int[2];
             int count = 0;
             for(String s : port_map.keySet()){
                 if(!s.equals(bankName)){
