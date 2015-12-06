@@ -25,17 +25,20 @@ public class Sequencer {
         this.bankC = bankC;
         
         this.Sequencer_port = sequencer_port;
+        
+        SeqReceiver seqReceiver = new SeqReceiver();
+        seqReceiver.start();
     }
 
-    class SeqReceiver implements Runnable {
+    class SeqReceiver extends Thread {
 
-        @SuppressWarnings("resource")
         @Override
         public void run() {
             try {
                 DatagramSocket receiveSocket = new DatagramSocket(Sequencer_port);
 
                 byte[] receiveData = new byte[1024];
+                byte[] sendData = new byte[1024];
 
                 while (true) {
                     DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
@@ -46,6 +49,8 @@ public class Sequencer {
                     String[] data = request.split(",");
                     String bank = data[0];
                     seqQueue.add(Integer.toString(++seqCount) + "|" + request);
+                    
+                    /*
                     synchronized (seqQueue) {
                         String sendMessage = seqQueue.peek();
                         //!!!!!! need add checking process to determine which bank
@@ -110,10 +115,12 @@ public class Sequencer {
                         
                         
                         seqQueue.poll();
-                    }
+                    }*/
+                    
+                    sendData = (seqCount+"").getBytes();
                     
                     //send sequence id back to front end
-                    DatagramPacket out = new DatagramPacket((seqCount+"").getBytes(), 1000, inetAddress, port);
+                    DatagramPacket out = new DatagramPacket(sendData, sendData.length, inetAddress, port);
                     receiveSocket.send(out);
                 }
             } catch (SocketException e) {

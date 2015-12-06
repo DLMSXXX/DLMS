@@ -103,88 +103,27 @@ public class DlmsFrontEnd extends dlmsPOA {
         }
     }
 
-    /*static class BankReceiver extends Thread {
-
-        public String result = null;
-        public boolean down = false;
-
-        public void run() {
-            DatagramSocket aSocket = null;
-            try {
-                byte[] buffer = new byte[100];
-                DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
-                aSocket.setSoTimeout(1000);
-                try {
-                    aSocket.receive(reply);
-                } catch (SocketTimeoutException e) {
-                    // timeout exception.
-                    System.out.println("Timeout reached!!! " + e);
-                    down = true;
-                    aSocket.close();
-                }
-                result = new String(reply.getData());
-                result = result.trim();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            aSocket.close();
-        }
-    }*/
-
-    /*static class RMSender extends Thread {
-
-        private String sendMsg;
-        private int RMPortNumber;
-
-        public RMSender(String s, int port) {
-            sendMsg = s;
-            RMPortNumber = port;
-        }
-
-        public void run() {
-            DatagramSocket aSocket = null;
-            try {
-                aSocket = new DatagramSocket();
-                InetAddress aHost = InetAddress.getByName("localhost");
-                byte[] m = sendMsg.getBytes();
-                DatagramPacket request = new DatagramPacket(m, m.length, aHost, RMPortNumber);
-                aSocket.send(request);
-            } catch (SocketException e) {
-                System.out.println("Socket: " + e.getMessage());
-            } catch (IOException e) {
-                System.out.println("IO: " + e.getMessage());
-            }
-            aSocket.close();
-        }
-    }*/
-
     @Override
     public String openAccount(String Bank, String fName, String lName, String email, String phoneNumber,
             String password) {
-        /*try {
-            
-            // send request to sequencer
-            FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "openAccount," + Bank + "," + fName + "," + lName + "," + email + ","
-                        + phoneNumber + "," + password);
-            sender.start();
-            sender.join();
-            String request_id = sender.result;
-            
-            // !!!!!!need change
-            long startTime = System.currentTimeMillis();
-            
-            while(ResultMap.get(request_id) == null && (System.currentTimeMillis() -  startTime) < 60000){
-                // keep waiting for response from server
-            }
-            
-            return ResultMap.get(request_id) == null ? "out of time" : ResultMap.get(request_id);
-            
-        } catch (InterruptedException ex) {
-            System.out.println(ex.toString());
-        }*/
-        
+
+        // send request to sequencer
+        FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "openAccount," + Bank + "," + fName + "," + lName + "," + email + ","
+                + phoneNumber + "," + password);
+        sender.run();
+
+        String request_id = sender.result;
+
         // !!!!!!need change
-        return "Problem";
+        /*long startTime = System.currentTimeMillis();
+
+        while (ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000) {
+            // keep waiting for response from server
+        }*/
+
+        //return ResultMap.get(request_id) == null ? "out of time" : ResultMap.get(request_id);
+        
+        return request_id;
     }
 
     @Override
