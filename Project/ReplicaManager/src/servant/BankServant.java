@@ -103,7 +103,7 @@ public class BankServant implements BankServantInterface {
     }
 
     @Override
-    public String getLoan(String bank, String accountNumber, String password, int loanAmount) {
+    public String getLoan(String bank, String accountNumber, String password, String loanAmount) {
         Account foundAccount = null;
         Loan loan = null;
 
@@ -143,7 +143,7 @@ public class BankServant implements BankServantInterface {
             int debt = 0;
             for (Loan temp : loan_HashMap.values()) {
                 if (temp.accountNumber.equals(foundAccount.accountNumber)) {
-                    debt += temp.amount;
+                    debt += Integer.parseInt(temp.amount);
                 }
             }
             debt += Integer.parseInt(client0.getResult()) + Integer.parseInt(client1.getResult());
@@ -188,8 +188,7 @@ public class BankServant implements BankServantInterface {
                         + "#" + foundAccount.accountNumber + "," + foundAccount.firstName + "," + foundAccount.lastName + "," + foundAccount.emailAddress + "," + foundAccount.phoneNumber + "," + foundAccount.password + "," + foundAccount.creditLimit
                         + ":";
                 BankAsClient client = new BankAsClient(Integer.valueOf(otherBank), content);
-                client.start();
-                client.join();
+                client.run();
 
                 // return result Yes/True
                 // operate on local database
@@ -205,15 +204,14 @@ public class BankServant implements BankServantInterface {
                     if (loan_HashMap.get(loan.ID) != null) {
                         content = "rollback" + ":" + foundAccount.lastName + "," + foundAccount.accountNumber + "," + loan.ID + ":";
                         client = new BankAsClient(Integer.valueOf(otherBank), content);
-                        client.start();
-                        client.join();
+                        client.run();
 
                         if (client.getResult().equals("No")) {
                             //do nothing, just return
                             return "FAIL";
                         }
                     } else {
-                        foundAccount.creditLimit = foundAccount.creditLimit + loan.amount;
+                        
                         content = "transferDone" + ":" + loan.ID + "," + ":";
                         client = new BankAsClient(Integer.valueOf(otherBank), content);
                         client.start();
@@ -350,12 +348,20 @@ public class BankServant implements BankServantInterface {
                                 
                                 break;
                             case "getLoan":
+                                result = sequenceId + "%" + rm_port + "#" + getLoan(requestPara[0], requestPara[1], requestPara[2], requestPara[3]) + "#";
+                                
                                 break;
                             case "transferLoan":
+                                result = sequenceId + "%" + rm_port + "#" + transferLoan(requestPara[0], requestPara[1], requestPara[2]) + "#";
+                                
                                 break;
                             case "delayLoan":
+                                result = sequenceId + "%" + rm_port + "#" + delayPayment(requestPara[0], requestPara[1], requestPara[2], requestPara[3]) + "#";
+                                
                                 break;
                             case "printCustomerInfo":
+                                result = sequenceId + "%" + rm_port + "#" + printCustomerInfo(requestPara[0]) + "#";
+                                
                                 break;
                         }
                         
@@ -383,7 +389,7 @@ public class BankServant implements BankServantInterface {
                                 int debt = 0;
                                 for (Loan loan : loan_HashMap.values()) {
                                     if (loan.accountNumber == foundAccount.accountNumber) {
-                                        debt += loan.amount;
+                                        debt += Integer.parseInt(loan.amount);
                                     }
                                 }
 
@@ -397,7 +403,7 @@ public class BankServant implements BankServantInterface {
                             loan.ID = loan_info[0];
                             loan.accountNumber = loan_info[1];
                             loan.dueDate = loan_info[2];
-                            loan.amount = Integer.parseInt(loan_info[3]);
+                            loan.amount = loan_info[3];
 
                             String[] account_info = content_array[1].split(",");
                             Account account = new Account();
