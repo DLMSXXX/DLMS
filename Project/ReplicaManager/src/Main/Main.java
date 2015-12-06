@@ -27,10 +27,10 @@ public class Main {
                                             5000);
         
         // run replica manager
-        ReplicaManager1 rm1 = new ReplicaManager1(6000, 6001, 6002, 7001, new int[]{7002, 7003, 7004}, 4000);
+        ReplicaManager2 rm1 = new ReplicaManager2(6000, 6001, 6002, 7001, new int[]{7002, 7003, 7004}, 4000);
         ReplicaManager2 rm2 = new ReplicaManager2(6003, 6004, 6005, 7002, new int[]{7001, 7003, 7004}, 4000);
-        ReplicaManager1 rm3 = new ReplicaManager1(6006, 6007, 6008, 7003, new int[]{7001, 7002, 7004}, 4000);
-        ReplicaManager1 rm4 = new ReplicaManager1(6009, 6010, 6011, 7004, new int[]{7001, 7002, 7003}, 4000);
+        ReplicaManager2 rm3 = new ReplicaManager2(6006, 6007, 6008, 7003, new int[]{7001, 7002, 7004}, 4000);
+        ReplicaManager2 rm4 = new ReplicaManager2(6009, 6010, 6011, 7004, new int[]{7001, 7002, 7003}, 4000);
         
         // run front end
         HashMap<String, Integer> rm_port_map = new HashMap<String, Integer>();

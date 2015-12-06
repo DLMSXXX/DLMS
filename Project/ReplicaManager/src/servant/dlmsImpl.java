@@ -122,7 +122,7 @@ public class dlmsImpl {
 
                         if (loanAmountOfThisBank + Integer.parseInt(client0.getResult().trim())
                                 + Integer.parseInt(client1.getResult().trim()) < 1000) {
-                            int newLoanID = 100000 + (int) (System.currentTimeMillis() % 10000);
+                            int newLoanID = ++lastSeq;
                             String loanId = Integer.toString(newLoanID);
                             Loan newLoan = new Loan(loanId, accountNumber, loanAmount, "2016-1-1");
                             if (!loans.containsKey(loanId)) {
@@ -130,7 +130,7 @@ public class dlmsImpl {
                             }
                             String returnLoanInfo = newLoan.getLoanId();
                             System.out.println(returnLoanInfo);
-                            return returnLoanInfo;
+                            return Integer.toString(newLoanID);
                         }
                     }
                 }
@@ -257,19 +257,19 @@ public class dlmsImpl {
         public void run() {
             try {
                 DatagramSocket serverSocket = new DatagramSocket(portMap.get(bankName));
-                byte[] receiveData = new byte[1024];
-                byte[] sendData = new byte[1024];
+
                 while (true) {
+                    byte[] receiveData = new byte[1024];
+                    byte[] sendData = new byte[1024];
                     DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                     serverSocket.receive(receivePacket);
                     String sentence = new String(receivePacket.getData());
-                    String elements[] = sentence.split("%");
-                    String func[] = elements[elements.length - 1].split("#");
-                    String funcPara[] = func[1].split(",");
-                    String first = func[0];
-                    String send = null;
-
-                    if (elements.length == 2) {
+                    if (sentence.contains("%")) {
+                        String elements[] = sentence.split("%");
+                        String func[] = elements[elements.length - 1].split("#");
+                        String funcPara[] = func[1].split(",");
+                        String first = func[0];
+                        String send = null;
                         if (Integer.parseInt(elements[0]) == (lastSeq + 1)) {
                             if (first.equals("openAccount")) {
                                 send = openAccount(funcPara[0], funcPara[1], funcPara[2], funcPara[3], funcPara[4], funcPara[5]);
@@ -295,80 +295,78 @@ public class dlmsImpl {
                         String message = Integer.toString(lastSeq) + "%" + Integer.toString(rmPort) + "#" + send + "#";
                         BankAsSend bankAsSend = new BankAsSend(fePort, message);
                         bankAsSend.start();
-//                        byte[] m = message.getBytes();
-//                        DatagramPacket reply = new DatagramPacket(m, m.length, InetAddress.getByName("localhost"), fePort);
-//                        serverSocket.send(reply);
-                    } else {
-                        InetAddress IPAddress = receivePacket.getAddress();
-                        int port = receivePacket.getPort();
-                        String[] request_array = sentence.split(":");
-                        System.out.println(request_array[0]);
-                        if (request_array[0].equals("search")) {
-                            String[] content_array = request_array[1].split(",");
-                            Customer foundAccount = null;
-                            for (String key : accounts.keySet()) {
-                                if (accounts.get(key) != null) {
-                                    List<Customer> listCustomer = accounts.get(key);
-                                    for (int i = 0; i < listCustomer.size(); i++) {
-                                        Customer cus = listCustomer.get(i);
-                                        if (cus.getAccountNumber().equals(content_array[1])) {
-                                            foundAccount = cus;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (foundAccount == null) {
-                                sendData = Integer.toString(0).getBytes();
-                            } else {
-                                int total = 0;
-                                for (Integer key : loans.keySet()) {
-                                    if (loans.get(key).getAccountNumber().equals(foundAccount.getAccountNumber())) {
-                                        total += Integer.parseInt(loans.get(key).getLoanAmt());
-                                    }
-                                }
-                                sendData = Integer.toString(total).getBytes();
-                            }
-                        } else if (request_array[0].equals("transfer")) {
-                            String[] content_array = request_array[1].split("#");
-                            String[] loan_info = content_array[0].split(",");
-                            Loan newLoan = new Loan(loan_info[0], loan_info[1], loan_info[2], loan_info[3]);
-                            String[] account_info = content_array[1].split(",");
-                            Customer newCustomer = new Customer(account_info[0], account_info[1], account_info[2],
-                                    account_info[3], account_info[4], account_info[5]);
-                            loans.put(Integer.parseInt(newLoan.getLoanId()), newLoan);
-                            List<Customer> list = new LinkedList<Customer>(
-                                    accounts.get(newCustomer.getFirstName().charAt(0)));
-                            list.add(newCustomer);
-                            accounts.put(newCustomer.getFirstName().substring(0, 1), list);
-                            sendData = "Yes".getBytes();
-                        } else if (request_array[0].equals("rollback")) {
-                            String[] content_array = request_array[1].split("#");
-                            List<Customer> list = accounts.get(content_array[0].charAt(0));
-                            Customer foundCustomer = null;
-                            for (Customer cus : list) {
-                                if (cus.getAccountNumber().equals(content_array[1])) {
-                                    foundCustomer = cus;
-                                    break;
-                                }
-                            }
-                            if (foundCustomer != null) {
-                                list.remove(foundCustomer);
-                            }
-                            if (loans.get(content_array[2]) != null) {
-                                loans.remove(content_array[2]);
-                            }
-                        }
-                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-                        serverSocket.send(sendPacket);
                     }
 
+                    InetAddress IPAddress = receivePacket.getAddress();
+                    int port = receivePacket.getPort();
+                    String[] request_array = sentence.split(":");
+                    System.out.println(request_array[0]);
+                    if (request_array[0].equals("search")) {
+                        String[] content_array = request_array[1].split(",");
+                        Customer foundAccount = null;
+                        for (String key : accounts.keySet()) {
+                            if (accounts.get(key) != null) {
+                                List<Customer> listCustomer = accounts.get(key);
+                                for (int i = 0; i < listCustomer.size(); i++) {
+                                    Customer cus = listCustomer.get(i);
+                                    if (cus.getAccountNumber().equals(content_array[1])) {
+                                        foundAccount = cus;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (foundAccount == null) {
+                            sendData = Integer.toString(0).getBytes();
+                        } else {
+                            int total = 0;
+                            for (Integer key : loans.keySet()) {
+                                if (loans.get(key).getAccountNumber().equals(foundAccount.getAccountNumber())) {
+                                    total += Integer.parseInt(loans.get(key).getLoanAmt());
+                                }
+                            }
+                            sendData = Integer.toString(total).getBytes();
+                        }
+                    } else if (request_array[0].equals("transfer")) {
+                        String[] content_array = request_array[1].split("#");
+                        String[] loan_info = content_array[0].split(",");
+                        Loan newLoan = new Loan(loan_info[0], loan_info[1], loan_info[2], loan_info[3]);
+                        String[] account_info = content_array[1].split(",");
+                        Customer newCustomer = new Customer(account_info[0], account_info[1], account_info[2],
+                                account_info[3], account_info[4], account_info[5]);
+                        loans.put(Integer.parseInt(newLoan.getLoanId()), newLoan);
+                        List<Customer> list = new LinkedList<Customer>(
+                                accounts.get(newCustomer.getFirstName().charAt(0)));
+                        list.add(newCustomer);
+                        accounts.put(newCustomer.getFirstName().substring(0, 1), list);
+                        sendData = "Yes".getBytes();
+                    } else if (request_array[0].equals("rollback")) {
+                        String[] content_array = request_array[1].split("#");
+                        List<Customer> list = accounts.get(content_array[0].charAt(0));
+                        Customer foundCustomer = null;
+                        for (Customer cus : list) {
+                            if (cus.getAccountNumber().equals(content_array[1])) {
+                                foundCustomer = cus;
+                                break;
+                            }
+                        }
+                        if (foundCustomer != null) {
+                            list.remove(foundCustomer);
+                        }
+                        if (loans.get(content_array[2]) != null) {
+                            loans.remove(content_array[2]);
+                        }
+                    }
+                    DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+                    serverSocket.send(sendPacket);
                 }
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+
     }
 
     class BankAsSend extends Thread {
