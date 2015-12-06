@@ -30,7 +30,7 @@ public class dlmsClient {
     public static void main(String[] args) throws IOException {
         dlmsClient client = new dlmsClient(args);
         
-        System.out.println("Welcome to our bank system customer client!");
+        /*System.out.println("Welcome to our bank system customer client!");
         boolean login = true;
         while(login){
             client.console();
@@ -44,7 +44,15 @@ public class dlmsClient {
                 System.out.println("Have a nice day!");
             }
             System.out.println("---------------------------");
-        }
+        }*/
+        
+        client.testTransferLoan();
+    }
+    
+    public void testTransferLoan(){
+        sendRequest("A", "openAccount", new String[]{"li", "yu", "email", "phone", "pass"});
+        sendRequest("A", "getLoan", new String[]{"3322201", "pass", "200"});
+        sendRequest("A", "transferLoan", new String[]{"2", "B"});
     }
     
     public void sendRequest(String bank, String request, String[] infoArray){
