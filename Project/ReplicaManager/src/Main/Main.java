@@ -3,6 +3,7 @@ package Main;
 import frontend.DlmsFrontEnd;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.PortableServer.POA;
@@ -27,12 +28,17 @@ public class Main {
         
         // run replica manager
         ReplicaManager1 rm1 = new ReplicaManager1(6000, 6001, 6002, 7001, new int[]{7002, 7003, 7004}, 4000);
-        ReplicaManager2 rm2 = new ReplicaManager2(6003, 6004, 6005, 7002, new int[]{7001, 7003, 7004}, 4000);
+        ReplicaManager1 rm2 = new ReplicaManager1(6003, 6004, 6005, 7002, new int[]{7001, 7003, 7004}, 4000);
         ReplicaManager1 rm3 = new ReplicaManager1(6006, 6007, 6008, 7003, new int[]{7001, 7002, 7004}, 4000);
         ReplicaManager1 rm4 = new ReplicaManager1(6009, 6010, 6011, 7004, new int[]{7001, 7002, 7003}, 4000);
         
         // run front end
-        DlmsFrontEnd FE = new DlmsFrontEnd(5000, new int[]{7001, 7002, 7003, 7004}, 4000);
+        HashMap<String, Integer> rm_port_map = new HashMap<String, Integer>();
+        rm_port_map.put("RM1", 7001);
+        rm_port_map.put("RM2", 7002);
+        rm_port_map.put("RM3", 7003);
+        rm_port_map.put("RM4", 7004);
+        DlmsFrontEnd FE = new DlmsFrontEnd(5000, rm_port_map, 4000);
         ORB _orb = ORB.init(args, null);
         POA _rootPOA = POAHelper.narrow(_orb.resolve_initial_references("RootPOA"));
         

@@ -298,6 +298,8 @@ public class BankServant implements BankServantInterface {
                 clientSocket.send(sendPacket);
                
                 clientSocket.close();
+                
+                System.out.println("Bank Servant Send Out: " + content);
 
             } catch (Exception e) {
                 System.out.println("**********************");
@@ -337,7 +339,7 @@ public class BankServant implements BankServantInterface {
                         
                         switch(requestType){
                             case "openAccount":
-                                result = sequenceId + "%" + rm_port + "#" + openAccount(requestPara[0], requestPara[1], requestPara[2], requestPara[3], requestPara[4], requestPara[5]) + "," + "#";
+                                result = sequenceId + "%" + rm_port + "#" + openAccount(requestPara[0], requestPara[1], requestPara[2], requestPara[3], requestPara[4], requestPara[5]) + "#";
                                 
                                 break;
                             case "getLoan":
@@ -349,6 +351,8 @@ public class BankServant implements BankServantInterface {
                             case "printCustomerInfo":
                                 break;
                         }
+                        
+                        System.out.println("Bank Servant Received Request: "+result);
                         
                         // send result back to front end
                         BankAsClient client = new BankAsClient(fe_port, result);

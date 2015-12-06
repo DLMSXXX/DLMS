@@ -7,110 +7,114 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Sequencer {
-    
+
     private int[] bankA;
     private int[] bankB;
     private int[] bankC;
-    
+
     private int Sequencer_port;
 
     Integer seqCount = new Integer(0);
-    Queue<String> seqQueue = new LinkedList<String>();
+    BlockingQueue<String> seqQueue = new LinkedBlockingQueue<String>();
 
     public Sequencer(int[] bankA, int[] bankB, int[] bankC, int sequencer_port) {
         this.bankA = bankA;
         this.bankB = bankB;
         this.bankC = bankC;
-        
+
         this.Sequencer_port = sequencer_port;
-        
+
         SeqReceiver seqReceiver = new SeqReceiver();
         seqReceiver.start();
-        
+
         SequenceQueueConsumer sequenceQueueConsumer = new SequenceQueueConsumer();
         sequenceQueueConsumer.start();
     }
-    
-    class SequenceQueueConsumer extends Thread{
-        
+
+    class SequenceQueueConsumer extends Thread {
+
         @Override
-        public void run(){
-            
-            while(true){
-                if(seqQueue.size() != 0){
-                    
-                    synchronized (seqQueue) {
-                        String sendMessage = seqQueue.peek();
-                        
-                        String[] request = sendMessage.split("%")[1].split("#");
-                        String requestBank = request[1].split(",")[0];
-                        
-                        switch(requestBank){
-                            case "A":
-                                SeqSender sender1 = new SeqSender(bankA[0], sendMessage);
-                                SeqSender sender2 = new SeqSender(bankA[1], sendMessage);
-                                SeqSender sender3 = new SeqSender(bankA[2], sendMessage);
-                                SeqSender sender4 = new SeqSender(bankA[3], sendMessage);
-                                sender1.start();
-                                sender2.start();
-                                sender3.start();
-                                sender4.start();
-                                try {
-                                    sender1.join();
-                                    sender2.join();
-                                    sender3.join();
-                                    sender4.join();
-                                } catch (InterruptedException e) {
-                                    System.out.println(e.getMessage());
-                                }
-                                break;
-                            case "B":
-                                sender1 = new SeqSender(bankB[0], sendMessage);
-                                sender2 = new SeqSender(bankB[1], sendMessage);
-                                sender3 = new SeqSender(bankB[2], sendMessage);
-                                sender4 = new SeqSender(bankB[3], sendMessage);
-                                sender1.start();
-                                sender2.start();
-                                sender3.start();
-                                sender4.start();
-                                try {
-                                    sender1.join();
-                                    sender2.join();
-                                    sender3.join();
-                                    sender4.join();
-                                } catch (InterruptedException e) {
-                                    System.out.println(e.getMessage());
-                                }
-                                break;
-                            case "C":
-                                sender1 = new SeqSender(bankC[0], sendMessage);
-                                sender2 = new SeqSender(bankC[1], sendMessage);
-                                sender3 = new SeqSender(bankC[2], sendMessage);
-                                sender4 = new SeqSender(bankC[3], sendMessage);
-                                sender1.start();
-                                sender2.start();
-                                sender3.start();
-                                sender4.start();
-                                try {
-                                    sender1.join();
-                                    sender2.join();
-                                    sender3.join();
-                                    sender4.join();
-                                } catch (InterruptedException e) {
-                                    System.out.println(e.getMessage());
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                        
-                        seqQueue.poll();
+        public void run() {
+
+            while (true) {
+                if (seqQueue.size() != 0) {
+
+                    String sendMessage = seqQueue.peek();
+
+                    String[] request = sendMessage.split("%")[1].split("#");
+                    String requestBank = request[1].split(",")[0];
+
+                    switch (requestBank) {
+                        case "A":
+                            SeqSender sender1 = new SeqSender(bankA[0], sendMessage);
+                            SeqSender sender2 = new SeqSender(bankA[1], sendMessage);
+                            SeqSender sender3 = new SeqSender(bankA[2], sendMessage);
+                            SeqSender sender4 = new SeqSender(bankA[3], sendMessage);
+                            sender1.start();
+                            sender2.start();
+                            sender3.start();
+                            sender4.start();
+                            try {
+                                sender1.join();
+                                sender2.join();
+                                sender3.join();
+                                sender4.join();
+                            } catch (InterruptedException e) {
+                                System.out.println(e.getMessage());
+                            }
+
+                            System.out.println("Sequencer send out request: " + sendMessage);
+
+                            break;
+                        case "B":
+                            sender1 = new SeqSender(bankB[0], sendMessage);
+                            sender2 = new SeqSender(bankB[1], sendMessage);
+                            sender3 = new SeqSender(bankB[2], sendMessage);
+                            sender4 = new SeqSender(bankB[3], sendMessage);
+                            sender1.start();
+                            sender2.start();
+                            sender3.start();
+                            sender4.start();
+                            try {
+                                sender1.join();
+                                sender2.join();
+                                sender3.join();
+                                sender4.join();
+                            } catch (InterruptedException e) {
+                                System.out.println(e.getMessage());
+                            }
+                            break;
+                        case "C":
+                            sender1 = new SeqSender(bankC[0], sendMessage);
+                            sender2 = new SeqSender(bankC[1], sendMessage);
+                            sender3 = new SeqSender(bankC[2], sendMessage);
+                            sender4 = new SeqSender(bankC[3], sendMessage);
+                            sender1.start();
+                            sender2.start();
+                            sender3.start();
+                            sender4.start();
+                            try {
+                                sender1.join();
+                                sender2.join();
+                                sender3.join();
+                                sender4.join();
+                            } catch (InterruptedException e) {
+                                System.out.println(e.getMessage());
+                            }
+                            break;
+                        default:
+                            break;
                     }
+
+                    seqQueue.poll();
+
                 }
             }
-            
+
         }
     }
 
@@ -130,13 +134,12 @@ public class Sequencer {
                     String request = new String(receivePacket.getData());
                     InetAddress inetAddress = receivePacket.getAddress();
                     int port = receivePacket.getPort();
-                    
-                    synchronized(seqQueue){
-                        seqQueue.add(Integer.toString(++seqCount) + "%" + request);
-                    }
-                    
-                    sendData = (seqCount+"").getBytes();
-                    
+
+                    seqQueue.add(Integer.toString(++seqCount) + "%" + request);
+
+                    System.out.println("Sequencer received request: " + request);
+                    sendData = (seqCount + "").getBytes();
+
                     //send sequence id back to front end
                     DatagramPacket out = new DatagramPacket(sendData, sendData.length, inetAddress, port);
                     receiveSocket.send(out);
@@ -164,7 +167,7 @@ public class Sequencer {
         @Override
         public void run() {
             try {
-                
+
                 DatagramSocket sendSocket = new DatagramSocket();
                 InetAddress inetAddress = InetAddress.getByName("localhost");
 
@@ -172,7 +175,7 @@ public class Sequencer {
                 sendData = requestMessage.getBytes();
                 DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, inetAddress, serverPort);
                 sendSocket.send(sendPacket);
-                
+
             } catch (SocketException e) {
                 System.out.println(e.getMessage());
             } catch (IOException e) {

@@ -2,21 +2,25 @@ package frontend;
 
 import DLMS.dlmsPOA;
 import java.io.IOException;
+import static java.lang.Thread.sleep;
 import java.net.*;
 import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DlmsFrontEnd extends dlmsPOA {
 
     private int SequencerPortNumber;
-    private int[] RMPort;
+    private HashMap<String, Integer> RMPort_map;
     private int FEport;
     
     public FrontEndReceiver FEReceiver;
-    public HashMap<String, String> ResultMap = new HashMap<String, String>();
+    public Hashtable<String, Hashtable<String, String>> ResultMap = new Hashtable<String, Hashtable<String, String>>();
     
-    public DlmsFrontEnd(int sequencer_port, int[] rm_port, int fe_port){
+    public DlmsFrontEnd(int sequencer_port, HashMap<String, Integer> RMPort_map, int fe_port){
         this.SequencerPortNumber = sequencer_port;
-        this.RMPort = rm_port;
+        this.RMPort_map = RMPort_map;
         this.FEport = fe_port;
         
         FEReceiver = new FrontEndReceiver(FEport);
@@ -25,8 +29,6 @@ public class DlmsFrontEnd extends dlmsPOA {
     
     class FrontEndReceiver extends Thread {
         int FEport;
-        
-        String re = "";
         
         public FrontEndReceiver(int FEport){
             this.FEport = FEport;
@@ -51,7 +53,20 @@ public class DlmsFrontEnd extends dlmsPOA {
                     //UDP message processing...
                     //***************************
                     
-                    //assume sequence request id is 1!!!
+                    String[] responseArr = sentence.split("%");
+                    String sequenceId = responseArr[0];
+                    String[] rmArr = responseArr[1].split("#");
+                    String rm_port = rmArr[0];
+                    String result = rmArr[1];
+                    
+                    if(ResultMap.get(sequenceId) == null){
+                        Hashtable<String, String> rm_result_map = new Hashtable<String, String>();
+                        rm_result_map.put(rm_port, result);
+                        ResultMap.put(sequenceId, rm_result_map);
+                    }else{
+                        ResultMap.get(sequenceId).put(rm_port, result);
+                    }
+                    
                     System.out.println("FrontEndReceiver get information: " + sentence);
                     
                 }
@@ -92,7 +107,7 @@ public class DlmsFrontEnd extends dlmsPOA {
                 clientSocket.close();
                 
                  //!!!!!!receive sequence id from sequencer
-                result = reply;
+                result = reply.trim();
                 
             } catch (SocketException ex) {
                 System.out.println(ex.toString());
@@ -115,16 +130,57 @@ public class DlmsFrontEnd extends dlmsPOA {
 
         String request_id = sender.result;
 
-        // !!!!!!need change
-        /*long startTime = System.currentTimeMillis();
-
-        while (ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000) {
-            // keep waiting for response from server
-        }*/
-
-        //return ResultMap.get(request_id) == null ? "out of time" : ResultMap.get(request_id);
+        long startTime = System.currentTimeMillis();
         
-        return request_id.trim();
+        //There is no result from bank server
+        while(ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000){
+            try {
+                sleep(5000);
+                
+            } catch (InterruptedException ex) {
+                
+            }
+        }
+        
+        while(ResultMap.get(request_id).size() < 4 && (System.currentTimeMillis() - startTime) < 60000){
+        }
+        
+        // Time out problem
+        if((System.currentTimeMillis() - startTime) > 60000){
+        
+        }else{
+            // Everything is ok, now we check all result
+            Hashtable<String, String> re_map = ResultMap.get(request_id);
+            if(re_map.get(RMPort_map.get("RM1")).equals(re_map.get(RMPort_map.get("RM2"))) 
+                    && re_map.get(RMPort_map.get("RM2")).equals(re_map.get(RMPort_map.get("RM3")))
+                    && re_map.get(RMPort_map.get("RM3")).equals(re_map.get(RMPort_map.get("RM4")))){
+                // all equals
+                return re_map.get(RMPort_map.get("RM1"));
+                
+            }else if(!re_map.get(RMPort_map.get("RM1")).equals(re_map.get(RMPort_map.get("RM2"))) 
+                    && re_map.get(RMPort_map.get("RM2")).equals(re_map.get(RMPort_map.get("RM3")))
+                    && re_map.get(RMPort_map.get("RM3")).equals(re_map.get(RMPort_map.get("RM4")))){
+                // RM1 have problem
+                
+            }else if(re_map.get(RMPort_map.get("RM1")).equals(re_map.get(RMPort_map.get("RM3"))) 
+                    && !re_map.get(RMPort_map.get("RM2")).equals(re_map.get(RMPort_map.get("RM3")))
+                    && re_map.get(RMPort_map.get("RM3")).equals(re_map.get(RMPort_map.get("RM4")))){
+                // RM2 have problem
+                
+            }else if(re_map.get(RMPort_map.get("RM1")).equals(re_map.get(RMPort_map.get("RM2"))) 
+                    && re_map.get(RMPort_map.get("RM2")).equals(re_map.get(RMPort_map.get("RM4")))
+                    && !re_map.get(RMPort_map.get("RM3")).equals(re_map.get(RMPort_map.get("RM4")))){
+                // RM3 have problem
+                
+            }else if(re_map.get(RMPort_map.get("RM1")).equals(re_map.get(RMPort_map.get("RM2"))) 
+                    && re_map.get(RMPort_map.get("RM2")).equals(re_map.get(RMPort_map.get("RM3")))
+                    && !re_map.get(RMPort_map.get("RM3")).equals(re_map.get(RMPort_map.get("RM4")))){
+                // RM4 have problem
+                
+            }
+        }
+        
+        return "Got problem on Front End";
     }
 
     @Override
