@@ -291,15 +291,22 @@ public class BankServant implements BankServantInterface {
                 DatagramSocket clientSocket = new DatagramSocket();
                 InetAddress IPAddress = InetAddress.getByName("localhost");
                 byte[] sendData = new byte[1024];
+                byte[] receiveData = new byte[1024];
 
                 sendData = content.getBytes();
 
                 DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, otherBankPort);
                 clientSocket.send(sendPacket);
+                
+                if(content.contains(":")){
+                    DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                    clientSocket.receive(receivePacket);
+                    String reply = new String(receivePacket.getData());
+                    
+                    result = reply.trim();
+                }
                
                 clientSocket.close();
-                
-                System.out.println("Bank Servant Send Out: " + content);
 
             } catch (Exception e) {
                 System.out.println("**********************");
@@ -351,8 +358,6 @@ public class BankServant implements BankServantInterface {
                             case "printCustomerInfo":
                                 break;
                         }
-                        
-                        System.out.println("Bank Servant Received Request: "+result);
                         
                         // send result back to front end
                         BankAsClient client = new BankAsClient(fe_port, result);
