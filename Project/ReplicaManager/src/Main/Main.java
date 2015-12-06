@@ -11,7 +11,7 @@ import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
-import rm.ReplicaManager;
+import rm.ReplicaManager1;
 import sequencer.Sequencer;
 
 public class Main {
@@ -25,10 +25,10 @@ public class Main {
                                             5000);
         
         // run replica manager
-        ReplicaManager rm1 = new ReplicaManager(6000, 6001, 6002, 7001, new int[]{7002, 7003, 7004}, 4000);
-        ReplicaManager rm2 = new ReplicaManager(6003, 6004, 6005, 7002, new int[]{7001, 7003, 7004}, 4000);
-        ReplicaManager rm3 = new ReplicaManager(6006, 6007, 6008, 7003, new int[]{7001, 7002, 7004}, 4000);
-        ReplicaManager rm4 = new ReplicaManager(6009, 6010, 6011, 7004, new int[]{7001, 7002, 7003}, 4000);
+        ReplicaManager1 rm1 = new ReplicaManager1(6000, 6001, 6002, 7001, new int[]{7002, 7003, 7004}, 4000);
+        ReplicaManager1 rm2 = new ReplicaManager1(6003, 6004, 6005, 7002, new int[]{7001, 7003, 7004}, 4000);
+        ReplicaManager1 rm3 = new ReplicaManager1(6006, 6007, 6008, 7003, new int[]{7001, 7002, 7004}, 4000);
+        ReplicaManager1 rm4 = new ReplicaManager1(6009, 6010, 6011, 7004, new int[]{7001, 7002, 7003}, 4000);
         
         // run front end
         DlmsFrontEnd FE = new DlmsFrontEnd(5000, new int[]{7001, 7002, 7003, 7004}, 4000);

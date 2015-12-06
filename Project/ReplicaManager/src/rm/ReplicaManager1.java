@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import servant.BankServant;
 
-public class ReplicaManager {
+public class ReplicaManager1 {
     
     public int Bank_A_Port;
     public int Bank_B_Port;
@@ -26,7 +26,7 @@ public class ReplicaManager {
     // wrong operations recording
     private int Wrong_Count = 0;
 
-    public ReplicaManager(int bankA_port, int bankB_port, int bankC_port, int rm_port, int[] other_rm_port, int fe_port){
+    public ReplicaManager1(int bankA_port, int bankB_port, int bankC_port, int rm_port, int[] other_rm_port, int fe_port){
         
         //set each bank port
         Bank_A_Port = bankA_port;
@@ -40,7 +40,7 @@ public class ReplicaManager {
         
         //3 bank servants
         BankServantMap = new HashMap<String, BankServant>();
-        //BankServant para: Bank port,AccountID_UniqueBase,LoanID_UniqueBase
+        //BankServant para: Bank port, RM_port, FE_port
         BankServantMap.put("A", new BankServant(Bank_A_Port, new int[]{Bank_B_Port, Bank_C_Port}, RM_port, FE_port));
         BankServantMap.put("B", new BankServant(Bank_B_Port, new int[]{Bank_A_Port, Bank_C_Port}, RM_port, FE_port));
         BankServantMap.put("C", new BankServant(Bank_C_Port, new int[]{Bank_A_Port, Bank_B_Port}, RM_port, FE_port));

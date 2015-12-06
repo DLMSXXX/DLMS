@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import bin.Customer;
-import bin.Loan;
+import model2.Customer;
+import model2.Loan;
 
 public class dlmsImpl {
 

@@ -1,4 +1,4 @@
-package bin;
+package model2;
 
 public class Loan {
 
