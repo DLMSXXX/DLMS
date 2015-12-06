@@ -26,6 +26,13 @@ public class BankServant implements BankServantInterface {
 
     //Initialize
     public BankServant(int _port, int[] _other_port, int rm_port, int fe_port) {
+        account_HashMap = new HashMap<String, ArrayList<Account>>();
+        loan_HashMap = new HashMap<String, Loan>();
+        
+        for(String ch : alphabet){
+            account_HashMap.put(ch, new ArrayList<Account>());
+        }
+        
         this.port = _port;
 
         this.other_port = _other_port;
@@ -39,6 +46,13 @@ public class BankServant implements BankServantInterface {
 
     //Initialize from other server
     public BankServant(int _port, int[] _other_port, int _target_port, int rm_port, int fe_port) {
+        account_HashMap = new HashMap<String, ArrayList<Account>>();
+        loan_HashMap = new HashMap<String, Loan>();
+        
+        for(String ch : alphabet){
+            account_HashMap.put(ch, new ArrayList<Account>());
+        }
+        
         this.port = _port;
         this.other_port = _other_port;
 
@@ -247,6 +261,7 @@ public class BankServant implements BankServantInterface {
     // getLoan: need search other bank
     // transferLoan: need send loan info, send back successful info
     // recover process: send whole database to other bank server cluster
+    // send to front end
     class BankAsClient extends Thread {
 
         private int otherBankPort;
@@ -268,19 +283,13 @@ public class BankServant implements BankServantInterface {
                 DatagramSocket clientSocket = new DatagramSocket();
                 InetAddress IPAddress = InetAddress.getByName("localhost");
                 byte[] sendData = new byte[1024];
-                byte[] receiveData = new byte[1024];
 
                 sendData = content.getBytes();
 
                 DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, otherBankPort);
                 clientSocket.send(sendPacket);
-                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-                clientSocket.receive(receivePacket);
-                String reply = new String(receivePacket.getData());
+               
                 clientSocket.close();
-
-                String[] reply_array = reply.split(":");
-                result = reply_array[0];
 
             } catch (Exception e) {
                 System.out.println("**********************");
