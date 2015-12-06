@@ -67,7 +67,7 @@ public class DlmsFrontEnd extends dlmsPOA {
                         ResultMap.get(sequenceId).put(rm_port, result);
                     }
                     
-                    System.out.println("FrontEndReceiver get information: " + sentence);
+                    System.out.println("FrontEndReceiver get information: " + sentence.trim());
                     
                 }
             

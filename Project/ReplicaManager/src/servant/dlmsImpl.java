@@ -292,10 +292,12 @@ public class dlmsImpl {
                             }
                             continue;
                         }
-                        String message = Integer.toString(lastSeq) + "%" + Integer.toString(rmPort) + "%" + send + "%";
-                        byte[] m = message.getBytes();
-                        DatagramPacket reply = new DatagramPacket(m, m.length, InetAddress.getByName("localhost"), fePort);
-                        serverSocket.send(reply);
+                        String message = Integer.toString(lastSeq) + "%" + Integer.toString(rmPort) + "#" + send + "#";
+                        BankAsSend bankAsSend = new BankAsSend(fePort, message);
+                        bankAsSend.start();
+//                        byte[] m = message.getBytes();
+//                        DatagramPacket reply = new DatagramPacket(m, m.length, InetAddress.getByName("localhost"), fePort);
+//                        serverSocket.send(reply);
                     } else {
                         InetAddress IPAddress = receivePacket.getAddress();
                         int port = receivePacket.getPort();
@@ -369,7 +371,34 @@ public class dlmsImpl {
         }
     }
 
-    class BankAsClient implements Runnable {
+    class BankAsSend extends Thread{
+        private int otherBankPort;
+        private String content;
+        private String result;
+
+        public BankAsSend(int otherBankPort, String content) {
+            this.otherBankPort = otherBankPort;
+            this.content = content;
+        }
+        
+        public void run() {
+            try {
+                DatagramSocket clientSocket = new DatagramSocket();
+                InetAddress IPAddress = InetAddress.getByName("localhost");
+                byte[] sendData = new byte[1024];
+                byte[] receiveData = new byte[1024];
+
+                sendData = content.getBytes();
+                DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, otherBankPort);
+                clientSocket.send(sendPacket);
+                clientSocket.close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+    }
+    
+    class BankAsClient implements Runnable{
 
         private int otherBankPort;
         private String content;
