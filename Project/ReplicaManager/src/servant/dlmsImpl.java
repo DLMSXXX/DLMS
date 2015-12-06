@@ -98,7 +98,7 @@ public class dlmsImpl {
                             }
                         }
                         loanAmountOfThisBank += Integer.parseInt(loanAmount);
-                        int[] otherPort = new int[]{2};
+                        int[] otherPort = new int[2];
                         int a = 0;
                         for (String s : portMap.keySet()) {
                             if (!s.equals(Bank)) {

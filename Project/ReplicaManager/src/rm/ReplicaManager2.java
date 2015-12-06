@@ -17,6 +17,12 @@ public class ReplicaManager2 {
 
     private int[] other_rm;
     
+    // RMs status
+    public String rm1Status;
+    public String rm2Status;
+    public String rm3Status;
+    public String rm4Status;
+    
     private int RM_port, FE_port;
     
     // wrong operations recording
@@ -110,7 +116,28 @@ public class ReplicaManager2 {
                     //***************************
                     //UDP message processing...
                     //***************************
-                    
+                    String rmAndItStatus[] = sentence.split("#");
+                    rm1Status = rmAndItStatus[1].split("%")[1];
+                    rm2Status = rmAndItStatus[2].split("%")[1];
+                    rm3Status = rmAndItStatus[3].split("%")[1];
+                    rm4Status = rmAndItStatus[4].split("%")[1];
+                    System.out.println(RMport);
+                    //check if corresponding bankserver correct, if not recovery
+                    for(int i = 1; i <= 4; i++){
+                        if(rmAndItStatus[i].split("%")[0].equals(Integer.toString(RMport))){
+                            if(rmAndItStatus[i].split("%")[1].equals("Running")) break;
+                            Wrong_Count++;
+                            if(rm1Status.equals("Running")){
+                                //ask for data
+                            }else if(rm2Status.equals("Running")){
+                                //ask for data
+                            }else if(rm3Status.equals("Running")){
+                                //ask for data
+                            }else if(rm4Status.equals("Running")){
+                                //ask for data
+                            }
+                        }
+                    }
                 }
             
             } catch (SocketException ex) {
