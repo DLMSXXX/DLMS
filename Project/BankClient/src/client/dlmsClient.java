@@ -55,7 +55,9 @@ public class dlmsClient {
         sendRequest("A", "transferLoan", new String[]{"2", "B"});
     }
     
-    public void sendRequest(String bank, String request, String[] infoArray){
+    public String sendRequest(String bank, String request, String[] infoArray){
+        String result = null;
+        
         try{
             String path = System.getProperty("user.dir");
             path = path.substring(0, path.lastIndexOf("/") + 1);
@@ -70,16 +72,20 @@ public class dlmsClient {
             dlms aDLMS = dlmsHelper.narrow(obj);
             
             if(request.equals("openAccount")){
-                System.out.println(aDLMS.openAccount(bank, infoArray[0], infoArray[1], infoArray[2], infoArray[3], infoArray[4]));
+                result = aDLMS.openAccount(bank, infoArray[0], infoArray[1], infoArray[2], infoArray[3], infoArray[4]);
             }else if(request.equals("getLoan")){
-                System.out.println(aDLMS.getLoan(bank, infoArray[0], infoArray[1], infoArray[2]));
+                result = aDLMS.getLoan(bank, infoArray[0], infoArray[1], infoArray[2]);
             }else if(request.equals("transferLoan")){
-                System.out.println(aDLMS.transferLoan(infoArray[0], bank, infoArray[1]));
+                result = aDLMS.transferLoan(infoArray[0], bank, infoArray[1]);
             }
+            
+            System.out.println(result);
             
         }catch(Exception ex){
             System.out.println(ex.toString());
         }
+        
+        return result;
     }
     
     public void console() {
