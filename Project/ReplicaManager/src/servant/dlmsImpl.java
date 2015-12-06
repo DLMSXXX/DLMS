@@ -22,10 +22,12 @@ public class dlmsImpl {
     public int[] rest_port = new int[2];
     private int lastSeq = 0;
     public int rmPort;
+    public int fePort;
 
-    public dlmsImpl(int port, int rmPort) {
+    public dlmsImpl(int port, int rmPort, int fePort) {
         this.port = port;
-
+        this.rmPort = rmPort;
+        this.fePort = fePort;
         for (Character ch : alphabet) {
             accounts.put(ch, null);
         }
@@ -301,8 +303,7 @@ public class dlmsImpl {
                         }
                         String message = Integer.toString(lastSeq) + "%" + Integer.toString(rmPort) + "%" + send + "%";
                         byte[] m = message.getBytes();
-                        DatagramPacket reply = new DatagramPacket(m, m.length, InetAddress.getByName(elements[1]),
-                                Integer.parseInt(elements[2]));
+                        DatagramPacket reply = new DatagramPacket(m, m.length, InetAddress.getByName("localhost"), fePort);
                         serverSocket.send(reply);
                     } else {
                         InetAddress IPAddress = receivePacket.getAddress();
