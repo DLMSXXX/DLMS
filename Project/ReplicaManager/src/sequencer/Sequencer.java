@@ -40,10 +40,11 @@ public class Sequencer {
             
             while(true){
                 if(seqQueue.size() != 0){
+                    
                     synchronized (seqQueue) {
                         String sendMessage = seqQueue.peek();
                         
-                        String[] request = sendMessage.split("$")[1].split("#");
+                        String[] request = sendMessage.split("%")[1].split("#");
                         String requestBank = request[1].split(",")[0];
                         
                         switch(requestBank){
@@ -131,7 +132,7 @@ public class Sequencer {
                     int port = receivePacket.getPort();
                     
                     synchronized(seqQueue){
-                        seqQueue.add(Integer.toString(++seqCount) + "$" + request);
+                        seqQueue.add(Integer.toString(++seqCount) + "%" + request);
                     }
                     
                     sendData = (seqCount+"").getBytes();
@@ -163,7 +164,7 @@ public class Sequencer {
         @Override
         public void run() {
             try {
-                @SuppressWarnings("resource")
+                
                 DatagramSocket sendSocket = new DatagramSocket();
                 InetAddress inetAddress = InetAddress.getByName("localhost");
 

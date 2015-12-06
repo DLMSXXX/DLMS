@@ -19,27 +19,33 @@ public class BankServant implements BankServantInterface {
     public int rm_port;
     public int port;
     public int[] other_port;
+    public int fe_port;
 
     public BankServant() {
     }
 
     //Initialize
-    public BankServant(int _port, int[] _other_port, int rm_port) {
+    public BankServant(int _port, int[] _other_port, int rm_port, int fe_port) {
         this.port = _port;
 
         this.other_port = _other_port;
         
         this.rm_port = rm_port;
+        this.fe_port = fe_port;
+        
+        BankAsReceiver bankAsReceiver = new BankAsReceiver();
+        bankAsReceiver.start();
     }
 
     //Initialize from other server
-    public BankServant(int _port, int[] _other_port, int _target_port, int rm_port) {
+    public BankServant(int _port, int[] _other_port, int _target_port, int rm_port, int fe_port) {
         this.port = _port;
         this.other_port = _other_port;
 
         this.other_port = _other_port;
         
         this.rm_port = rm_port;
+        this.fe_port = fe_port;
 
         // recovering data from _target_port bank servant
     }
@@ -102,11 +108,11 @@ public class BankServant implements BankServantInterface {
             BankAsClient client0 = new BankAsClient(other_port[0], "search" + ":" + foundAccount.firstName + "," + foundAccount.lastName + ":");
             BankAsClient client1 = new BankAsClient(other_port[1], "search" + ":" + foundAccount.firstName + "," + foundAccount.lastName + ":");
 
-            Thread th1 = client0.start();
-            Thread th2 = client1.start();
+            client0.start();
+            client1.start();
             try {
-                th1.join();
-                th2.join();
+                client0.join();
+                client1.join();
             } catch (Exception ex) {
                 return ex.getMessage();
             }
@@ -160,8 +166,8 @@ public class BankServant implements BankServantInterface {
                         + "#" + foundAccount.accountNumber + "," + foundAccount.firstName + "," + foundAccount.lastName + "," + foundAccount.emailAddress + "," + foundAccount.phoneNumber + "," + foundAccount.password + "," + foundAccount.creditLimit
                         + ":";
                 BankAsClient client = new BankAsClient(Integer.valueOf(otherBank), content);
-                Thread th = client.start();
-                th.join();
+                client.start();
+                client.join();
 
                 // return result Yes/True
                 // operate on local database
@@ -177,8 +183,8 @@ public class BankServant implements BankServantInterface {
                     if (loan_HashMap.get(loan.ID) != null) {
                         content = "rollback" + ":" + foundAccount.lastName + "," + foundAccount.accountNumber + "," + loan.ID + ":";
                         client = new BankAsClient(Integer.valueOf(otherBank), content);
-                        Thread th1 = client.start();
-                        th1.join();
+                        client.start();
+                        client.join();
 
                         if (client.getResult().equals("No")) {
                             //do nothing, just return
@@ -188,8 +194,8 @@ public class BankServant implements BankServantInterface {
                         foundAccount.creditLimit = foundAccount.creditLimit + loan.amount;
                         content = "transferDone" + ":" + loan.ID + "," + ":";
                         client = new BankAsClient(Integer.valueOf(otherBank), content);
-                        Thread th1 = client.start();
-                        th1.join();
+                        client.start();
+                        client.join();
                     }
                 }
 
@@ -241,7 +247,7 @@ public class BankServant implements BankServantInterface {
     // getLoan: need search other bank
     // transferLoan: need send loan info, send back successful info
     // recover process: send whole database to other bank server cluster
-    class BankAsClient implements Runnable {
+    class BankAsClient extends Thread {
 
         private int otherBankPort;
         private String content;
@@ -250,12 +256,6 @@ public class BankServant implements BankServantInterface {
         public BankAsClient(int otherBankPort, String content) {
             this.otherBankPort = otherBankPort;
             this.content = content;
-        }
-
-        public Thread start() {
-            Thread thread = new Thread(this);
-            thread.start();
-            return thread;
         }
 
         public String getResult() {
@@ -291,12 +291,7 @@ public class BankServant implements BankServantInterface {
         }
     }
 
-    class BankAsReceiver implements Runnable {
-
-        public void start() {
-            new Thread(this).start();
-        }
-
+    class BankAsReceiver extends Thread {
         @Override
         public void run() {
             try {
@@ -313,18 +308,20 @@ public class BankServant implements BankServantInterface {
                     InetAddress IPAddress = receivePacket.getAddress();
                     int port = receivePacket.getPort();
 
-                    if (sentence.contains("$")) {
+                    if (sentence.contains("%")) {
                         // message from sequencer
-                        String[] message = sentence.split("$");
+                        String[] message = sentence.split("%");
                         String sequenceId = message[0];
                         String[] request = message[1].split("#");
                         String requestType = request[0];
                         String[] requestPara = request[1].split(",");
                         
+                        String result = "";
+                        
                         switch(requestType){
                             case "openAccount":
-                                String result = sequenceId + "$" + rm_port + "#" + openAccount(requestPara[0], requestPara[1], requestPara[2], requestPara[3], requestPara[4], requestPara[5]) + "," + "#";
-                                sendData = result.getBytes();
+                                result = sequenceId + "%" + rm_port + "#" + openAccount(requestPara[0], requestPara[1], requestPara[2], requestPara[3], requestPara[4], requestPara[5]) + "," + "#";
+                                
                                 break;
                             case "getLoan":
                                 break;
@@ -335,6 +332,10 @@ public class BankServant implements BankServantInterface {
                             case "printCustomerInfo":
                                 break;
                         }
+                        
+                        // send result back to front end
+                        BankAsClient client = new BankAsClient(fe_port, result);
+                        client.start();
 
                     } else {
                         // message from internal bank cluster
@@ -446,13 +447,11 @@ public class BankServant implements BankServantInterface {
                                 loan_HashMap.remove(content_array[2]);
                                 loan.notify();
                             }
-                        } else {
-                            sendData = "Test".getBytes();
-                        }
+                        } 
+                        
+                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+                        serverSocket.send(sendPacket);
                     }
-
-                    DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-                    serverSocket.send(sendPacket);
                 }
 
             } catch (Exception e) {

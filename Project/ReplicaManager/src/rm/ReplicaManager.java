@@ -21,10 +21,12 @@ public class ReplicaManager {
     
     private int[] other_rm;
     
+    private int RM_port, FE_port;
+    
     // wrong operations recording
     private int Wrong_Count = 0;
 
-    public ReplicaManager(int bankA_port, int bankB_port, int bankC_port, int RM_port, int[] other_rm_port){
+    public ReplicaManager(int bankA_port, int bankB_port, int bankC_port, int rm_port, int[] other_rm_port, int fe_port){
         
         //set each bank port
         Bank_A_Port = bankA_port;
@@ -33,12 +35,15 @@ public class ReplicaManager {
         //set other rm array
         other_rm = other_rm_port;
         
+        RM_port = rm_port;
+        FE_port = fe_port;
+        
         //3 bank servants
         BankServantMap = new HashMap<String, BankServant>();
         //BankServant para: Bank port,AccountID_UniqueBase,LoanID_UniqueBase
-        BankServantMap.put("A", new BankServant(Bank_A_Port, new int[]{Bank_B_Port, Bank_C_Port}));
-        BankServantMap.put("B", new BankServant(Bank_B_Port, new int[]{Bank_A_Port, Bank_C_Port}));
-        BankServantMap.put("C", new BankServant(Bank_C_Port, new int[]{Bank_A_Port, Bank_B_Port}));
+        BankServantMap.put("A", new BankServant(Bank_A_Port, new int[]{Bank_B_Port, Bank_C_Port}, RM_port, FE_port));
+        BankServantMap.put("B", new BankServant(Bank_B_Port, new int[]{Bank_A_Port, Bank_C_Port}, RM_port, FE_port));
+        BankServantMap.put("C", new BankServant(Bank_C_Port, new int[]{Bank_A_Port, Bank_B_Port}, RM_port, FE_port));
         
         //receiver thread
         Thread receiver = new Thread(new RMReceiver(RM_port));
@@ -91,9 +96,9 @@ public class ReplicaManager {
     private void recoverStart(int target_port_A, int target_port_B, int target_port_C){
         //recovery
         //BankServant para: corresponding right bank servant
-        BankServantMap.put("A", new BankServant(Bank_A_Port, new int[]{Bank_B_Port, Bank_C_Port}, target_port_A));
-        BankServantMap.put("B", new BankServant(Bank_B_Port, new int[]{Bank_A_Port, Bank_C_Port}, target_port_B));
-        BankServantMap.put("C", new BankServant(Bank_C_Port, new int[]{Bank_A_Port, Bank_B_Port}, target_port_C));
+        BankServantMap.put("A", new BankServant(Bank_A_Port, new int[]{Bank_B_Port, Bank_C_Port}, target_port_A, RM_port, FE_port));
+        BankServantMap.put("B", new BankServant(Bank_B_Port, new int[]{Bank_A_Port, Bank_C_Port}, target_port_B, RM_port, FE_port));
+        BankServantMap.put("C", new BankServant(Bank_C_Port, new int[]{Bank_A_Port, Bank_B_Port}, target_port_C, RM_port, FE_port));
     
         // reset wrong operations recording
         Wrong_Count = 0;

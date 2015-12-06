@@ -26,6 +26,8 @@ public class DlmsFrontEnd extends dlmsPOA {
     class FrontEndReceiver extends Thread {
         int FEport;
         
+        String re = "";
+        
         public FrontEndReceiver(int FEport){
             this.FEport = FEport;
         }
@@ -51,7 +53,6 @@ public class DlmsFrontEnd extends dlmsPOA {
                     
                     //assume sequence request id is 1!!!
                     System.out.println("FrontEndReceiver get information: " + sentence);
-                    ResultMap.put("1", sentence);
                     
                 }
             
