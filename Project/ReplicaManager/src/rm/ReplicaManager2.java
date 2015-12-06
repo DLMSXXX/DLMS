@@ -41,8 +41,8 @@ public class ReplicaManager2 {
         FE_port = fe_port;
     
         BankServantMap = new HashMap<String, dlmsImpl>();
-        BankServantMap.put("A", new dlmsImpl());
-        BankServantMap.put("B", new dlmsImpl());
-        BankServantMap.put("C", new dlmsImpl());
+        BankServantMap.put("A", new dlmsImpl("A", BankServantMap, rm_port, fe_port));
+        BankServantMap.put("B", new dlmsImpl("B", BankServantMap, rm_port, fe_port));
+        BankServantMap.put("C", new dlmsImpl("C", BankServantMap, rm_port, fe_port));
     }
 }
