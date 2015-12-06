@@ -18,15 +18,15 @@ public class dlmsImpl {
 	private HashMap<Integer, Loan> loans = new HashMap<Integer, Loan>();
     public static final Character[] alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
         'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
-    public int port;
-    public int[] rest_port = new int[2];
+    public String bankName;
+    public HashMap<String, Integer> portMap;
     private int lastSeq = 0;
     public int rmPort;
     public int fePort;
 
-    public dlmsImpl(int port, int rmPort, int fePort) {
-        this.port = port;
-        this.rmPort = rmPort;
+    public dlmsImpl(String bankName, HashMap<String, Integer> portMap, int fePort) {
+        this.bankName = bankName;
+        this.portMap = portMap;
         this.fePort = fePort;
         for (Character ch : alphabet) {
             accounts.put(ch, null);
@@ -97,10 +97,17 @@ public class dlmsImpl {
                             }
                         }
                         loanAmountOfThisBank += Integer.parseInt(loanAmount);
+                        int[] otherPort = new int[]{2};
+                        int a = 0;
+                        for(String s: portMap.keySet()){
+                            if(!s.equals(Bank)){
+                                otherPort[a++] = portMap.get(s);
+                            }
+                        }
                         // Check if the customer has exceed the limit
-                        BankAsClient client0 = new BankAsClient(rest_port[0],
+                        BankAsClient client0 = new BankAsClient(otherPort[0],
                                 "search" + ":" + cus.getFirstName() + "," + cus.getAccountNumber() + ":");
-                        BankAsClient client1 = new BankAsClient(rest_port[1],
+                        BankAsClient client1 = new BankAsClient(otherPort[1],
                                 "search" + ":" + cus.getFirstName() + "," + cus.getAccountNumber() + ":");
 
                         Thread th1 = client0.start();
@@ -178,24 +185,13 @@ public class dlmsImpl {
     }
 
     public String transferLoan(String loanID, String currentBank, String otherBank) {
-        int portNumber;
-        if (currentBank == "1") {
-            if (otherBank == "2") {
-                portNumber = rest_port[0];
-            } else {
-                portNumber = rest_port[1];
+        int portNumber = 0;
+        for(String s : portMap.keySet()){
+            if(s.equals(otherBank)){
+                portNumber = portMap.get(s);
             }
-        } else if (currentBank == "2") {
-            if (otherBank == "1") {
-                portNumber = rest_port[0];
-            } else {
-                portNumber = rest_port[1];
-            }
-        } else if (otherBank == "1") {
-            portNumber = rest_port[0];
-        } else {
-            portNumber = rest_port[1];
         }
+//      
         if (loans.get(loanID) == null) {
             return "NotFoundLoan";
         }
@@ -265,7 +261,7 @@ public class dlmsImpl {
         @Override
         public void run() {
             try {
-                DatagramSocket serverSocket = new DatagramSocket(port);
+                DatagramSocket serverSocket = new DatagramSocket(portMap.get(bankName));
                 byte[] receiveData = new byte[1024];
                 byte[] sendData = new byte[1024];
                 while (true) {
