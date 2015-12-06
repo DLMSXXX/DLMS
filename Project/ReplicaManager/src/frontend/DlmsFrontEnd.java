@@ -123,7 +123,7 @@ public class DlmsFrontEnd extends dlmsPOA {
 
         //return ResultMap.get(request_id) == null ? "out of time" : ResultMap.get(request_id);
         
-        return request_id;
+        return request_id.trim();
     }
 
     @Override
@@ -151,7 +151,7 @@ public class DlmsFrontEnd extends dlmsPOA {
             System.out.println("IO: " + e.getMessage());
         }
         return result;*/
-        return request_id;
+        return request_id.trim();
     }
 
     @Override
@@ -180,7 +180,7 @@ public class DlmsFrontEnd extends dlmsPOA {
             System.out.println("IO: " + e.getMessage());
         }
         return result;*/
-        return "";
+        return request_id.trim();
     }
 
     @Override
@@ -210,7 +210,7 @@ public class DlmsFrontEnd extends dlmsPOA {
             System.out.println("IO: " + e.getMessage());
         }
         return result;*/
-        return request_id;
+        return request_id.trim();
     }
 
     @Override
@@ -239,7 +239,7 @@ public class DlmsFrontEnd extends dlmsPOA {
             System.out.println("IO: " + e.getMessage());
         }
         return result;*/
-        return request_id;
+        return request_id.trim();
     }
 
     //method to receive from banks, compare and send to RMs

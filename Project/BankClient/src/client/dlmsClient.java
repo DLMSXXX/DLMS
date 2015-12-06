@@ -83,8 +83,25 @@ public class dlmsClient {
         try {
             BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
             String choice = bufferRead.readLine();
+            
+            if(choice.equals("*")){
+                String[] infoArray;
+                infoArray = new String[]{"guan","wang","qwer","asd","wer"};
+                sendRequest("A", "openAccount", infoArray);
+                return;
+            }else if(choice.equals("/")){
+                String[] infoArray;
+                infoArray = new String[]{"123","12345","200"};
+                sendRequest("A", "getLoan", infoArray);
+                return;
+            }else if(choice.equals("&")){
+                String[] infoArray;
+                infoArray = new String[]{"12345","B"};
+                sendRequest("A", "transferLoan", infoArray);
+                return;
+            }
 
-            if (!(choice.equals("1") || choice.equals("2") || choice.equals("3"))) {
+            if (!(choice.equals("1") || choice.equals("2") || choice.equals("3")|| choice.equals("*")|| choice.equals("/")|| choice.equals("&"))) {
                 System.out.println("Illegal Input, please choice 1 or 2 or 3");
                 return;
             }
