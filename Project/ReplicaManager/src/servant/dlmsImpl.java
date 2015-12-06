@@ -24,10 +24,11 @@ public class dlmsImpl {
     public int rmPort;
     public int fePort;
 
-    public dlmsImpl(String bankName, HashMap<String, Integer> portMap, int fePort) {
+    public dlmsImpl(String bankName, HashMap<String, Integer> portMap, int rmPort, int fePort) {
         this.bankName = bankName;
         this.portMap = portMap;
         this.fePort = fePort;
+        this.rmPort = rmPort;
         for (Character ch : alphabet) {
             accounts.put(ch, null);
         }
