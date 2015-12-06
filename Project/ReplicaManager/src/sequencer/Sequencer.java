@@ -44,9 +44,19 @@ public class Sequencer {
                 if (seqQueue.size() != 0) {
 
                     String sendMessage = seqQueue.peek();
+                    
+                    System.out.println("SequenceQueueConsumer **** "+sendMessage);
 
                     String[] request = sendMessage.split("%")[1].split("#");
-                    String requestBank = request[1].split(",")[0];
+                    String requestType = request[0];
+                    
+                     String requestBank;
+                     
+                    if(requestType.equals("transferLoan")){
+                        requestBank = request[1].split(",")[1];
+                    }else{
+                        requestBank = request[1].split(",")[0];
+                    }
 
                     switch (requestBank) {
                         case "A":

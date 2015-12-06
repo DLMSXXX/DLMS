@@ -187,7 +187,7 @@ public class BankServant implements BankServantInterface {
                 String content = "transfer" + ":" + loan.ID + "," + loan.accountNumber + "," + loan.dueDate + "," + loan.amount
                         + "#" + foundAccount.accountNumber + "," + foundAccount.firstName + "," + foundAccount.lastName + "," + foundAccount.emailAddress + "," + foundAccount.phoneNumber + "," + foundAccount.password + "," + foundAccount.creditLimit
                         + ":";
-                BankAsClient client = new BankAsClient(Integer.valueOf(otherBank), content);
+                BankAsClient client = new BankAsClient(Integer.valueOf(port_map.get(otherBank)), content);
                 client.run();
 
                 // return result Yes/True
@@ -203,7 +203,7 @@ public class BankServant implements BankServantInterface {
                     loan_HashMap.remove(loan);
                     if (loan_HashMap.get(loan.ID) != null) {
                         content = "rollback" + ":" + foundAccount.lastName + "," + foundAccount.accountNumber + "," + loan.ID + ":";
-                        client = new BankAsClient(Integer.valueOf(otherBank), content);
+                        client = new BankAsClient(Integer.valueOf(port_map.get(otherBank)), content);
                         client.run();
 
                         if (client.getResult().equals("No")) {
@@ -213,7 +213,7 @@ public class BankServant implements BankServantInterface {
                     } else {
                         
                         content = "transferDone" + ":" + loan.ID + "," + ":";
-                        client = new BankAsClient(Integer.valueOf(otherBank), content);
+                        client = new BankAsClient(Integer.valueOf(port_map.get(otherBank)), content);
                         client.start();
                         client.join();
                     }
@@ -332,7 +332,7 @@ public class BankServant implements BankServantInterface {
                     InetAddress IPAddress = receivePacket.getAddress();
                     int port = receivePacket.getPort();
 
-                    System.out.println(sentence);
+                    System.out.println(sentence.trim());
                     
                     if (sentence.contains("%")) {
                         // message from sequencer
