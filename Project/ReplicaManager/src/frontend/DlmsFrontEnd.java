@@ -14,65 +14,63 @@ public class DlmsFrontEnd extends dlmsPOA {
     private int SequencerPortNumber;
     private HashMap<String, Integer> RMPort_map;
     private int FEport;
-    
+
     public FrontEndReceiver FEReceiver;
     public Hashtable<String, Hashtable<String, String>> ResultMap = new Hashtable<String, Hashtable<String, String>>();
-    
-    public DlmsFrontEnd(int sequencer_port, HashMap<String, Integer> RMPort_map, int fe_port){
+
+    public DlmsFrontEnd(int sequencer_port, HashMap<String, Integer> RMPort_map, int fe_port) {
         this.SequencerPortNumber = sequencer_port;
         this.RMPort_map = RMPort_map;
         this.FEport = fe_port;
-        
+
         FEReceiver = new FrontEndReceiver(FEport);
         FEReceiver.start();
     }
 
-    
-
     class FrontEndReceiver extends Thread {
+
         int FEport;
-        
-        public FrontEndReceiver(int FEport){
+
+        public FrontEndReceiver(int FEport) {
             this.FEport = FEport;
         }
-        
+
         @Override
-        public void run(){
+        public void run() {
             try {
                 DatagramSocket serverSocket = new DatagramSocket(FEport);
-                
+
                 byte[] receiveData = new byte[1024];
                 byte[] sendData = new byte[1024];
-                
-                while(true){
+
+                while (true) {
                     DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                     serverSocket.receive(receivePacket);
                     String sentence = new String(receivePacket.getData());
                     InetAddress IPAddress = receivePacket.getAddress();
                     int port = receivePacket.getPort();
-                    
+
                     //***************************
                     //UDP message processing...
                     //***************************
-                    
                     String[] responseArr = sentence.split("%");
                     String sequenceId = responseArr[0];
                     String[] rmArr = responseArr[1].split("#");
                     String rm_port = rmArr[0];
                     String result = rmArr[1];
-                    
-                    if(ResultMap.get(sequenceId) == null){
+
+                    if (ResultMap.get(sequenceId) == null) {
                         Hashtable<String, String> rm_result_map = new Hashtable<String, String>();
                         rm_result_map.put(rm_port, result);
                         ResultMap.put(sequenceId, rm_result_map);
-                    }else{
+                    } else {
                         ResultMap.get(sequenceId).put(rm_port, result);
                     }
-                    
+
                     System.out.println("FrontEndReceiver get information: " + sentence.trim());
 
                 }
-            
+
             } catch (SocketException ex) {
                 System.out.println(ex.toString());
             } catch (IOException ex) {
@@ -80,19 +78,55 @@ public class DlmsFrontEnd extends dlmsPOA {
             }
         }
     }
-    
-    class FrontEndSender extends Thread{
+
+    class FrontEndSenderToRM extends Thread {
+
         private int target_port;
         private String content;
         private String result;
-        
-        public FrontEndSender(int target_port, String content){
+
+        public FrontEndSenderToRM(int target_port, String content) {
             this.target_port = target_port;
             this.content = content;
         }
-        
+
         @Override
-        public void run(){
+        public void run() {
+            try {
+                DatagramSocket clientSocket = new DatagramSocket();
+                InetAddress IPAddress = InetAddress.getByName("localhost");
+                byte[] sendData = new byte[1024];
+
+                sendData = content.getBytes();
+
+                DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, target_port);
+                clientSocket.send(sendPacket);
+
+                clientSocket.close();
+
+            } catch (SocketException ex) {
+                System.out.println(ex.toString());
+            } catch (UnknownHostException ex) {
+                System.out.println(ex.toString());
+            } catch (IOException ex) {
+                System.out.println(ex.toString());
+            }
+        }
+    }
+
+    class FrontEndSender extends Thread {
+
+        private int target_port;
+        private String content;
+        private String result;
+
+        public FrontEndSender(int target_port, String content) {
+            this.target_port = target_port;
+            this.content = content;
+        }
+
+        @Override
+        public void run() {
             try {
                 DatagramSocket clientSocket = new DatagramSocket();
                 InetAddress IPAddress = InetAddress.getByName("localhost");
@@ -100,17 +134,17 @@ public class DlmsFrontEnd extends dlmsPOA {
                 byte[] receiveData = new byte[1024];
 
                 sendData = content.getBytes();
-                
+
                 DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, target_port);
                 clientSocket.send(sendPacket);
                 DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                 clientSocket.receive(receivePacket);
                 String reply = new String(receivePacket.getData());
                 clientSocket.close();
-                
-                 //!!!!!!receive sequence id from sequencer
+
+                //!!!!!!receive sequence id from sequencer
                 result = reply.trim();
-                
+
             } catch (SocketException ex) {
                 System.out.println(ex.toString());
             } catch (UnknownHostException ex) {
@@ -133,75 +167,106 @@ public class DlmsFrontEnd extends dlmsPOA {
         String request_id = sender.result;
 
         long startTime = System.currentTimeMillis();
-        
+
         //There is no result from bank server
-        while(ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000){
+        while (ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000) {
             try {
                 sleep(5000);
-                
+
             } catch (Exception ex) {
                 System.out.println(ex);
             }
         }
-        
-        while(ResultMap.get(request_id).size() < 4 && (System.currentTimeMillis() - startTime) < 60000){
+
+        while (ResultMap.get(request_id).size() < 4 && (System.currentTimeMillis() - startTime) < 60000) {
         }
-        
+
         // Time out problem
-        if((System.currentTimeMillis() - startTime) > 60000){
-        
-        }else{
+        if ((System.currentTimeMillis() - startTime) > 60000) {
+
+        } else {
             // Everything is ok, now we check all result
             Hashtable<String, String> re_map = ResultMap.get(request_id);
-            if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // all equals
                 // Send status to all the RM
-                
-                
+                FrontEndSenderToRM frontEndSenderToRM1 = new FrontEndSenderToRM(RMPort_map.get("RM1"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                FrontEndSenderToRM frontEndSenderToRM2 = new FrontEndSenderToRM(RMPort_map.get("RM2"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                FrontEndSenderToRM frontEndSenderToRM3 = new FrontEndSenderToRM(RMPort_map.get("RM3"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                FrontEndSenderToRM frontEndSenderToRM4 = new FrontEndSenderToRM(RMPort_map.get("RM4"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                frontEndSenderToRM1.start();
+                frontEndSenderToRM2.start();
+                frontEndSenderToRM3.start();
+                frontEndSenderToRM4.start();
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
-                
-            }else if(!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+
+            } else if (!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM1 have problem
                 // Send status to all the RM
-                
-                
+                FrontEndSenderToRM frontEndSenderToRM1 = new FrontEndSenderToRM(RMPort_map.get("RM1"), "#" + RMPort_map.get("RM1") + "%" + "Wrong" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                FrontEndSenderToRM frontEndSenderToRM2 = new FrontEndSenderToRM(RMPort_map.get("RM2"), "#" + RMPort_map.get("RM1") + "%" + "Wrong" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                FrontEndSenderToRM frontEndSenderToRM3 = new FrontEndSenderToRM(RMPort_map.get("RM3"), "#" + RMPort_map.get("RM1") + "%" + "Wrong" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                FrontEndSenderToRM frontEndSenderToRM4 = new FrontEndSenderToRM(RMPort_map.get("RM4"), "#" + RMPort_map.get("RM1") + "%" + "Wrong" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                frontEndSenderToRM1.start();
+                frontEndSenderToRM2.start();
+                frontEndSenderToRM3.start();
+                frontEndSenderToRM4.start();
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM2")));
-            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3")))) 
+            } else if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && !re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM2 have problem
+                FrontEndSenderToRM frontEndSenderToRM1 = new FrontEndSenderToRM(RMPort_map.get("RM1"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Wrong" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                FrontEndSenderToRM frontEndSenderToRM2 = new FrontEndSenderToRM(RMPort_map.get("RM2"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Wrong" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                FrontEndSenderToRM frontEndSenderToRM3 = new FrontEndSenderToRM(RMPort_map.get("RM3"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Wrong" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                FrontEndSenderToRM frontEndSenderToRM4 = new FrontEndSenderToRM(RMPort_map.get("RM4"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Wrong" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                frontEndSenderToRM1.start();
+                frontEndSenderToRM2.start();
+                frontEndSenderToRM3.start();
+                frontEndSenderToRM4.start();
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
-            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            } else if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))
-                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM3 have problem
                 // Send status to all the RM
-                
-                
+                FrontEndSenderToRM frontEndSenderToRM1 = new FrontEndSenderToRM(RMPort_map.get("RM1"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Wrong" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                FrontEndSenderToRM frontEndSenderToRM2 = new FrontEndSenderToRM(RMPort_map.get("RM2"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Wrong" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                FrontEndSenderToRM frontEndSenderToRM3 = new FrontEndSenderToRM(RMPort_map.get("RM3"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Wrong" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                FrontEndSenderToRM frontEndSenderToRM4 = new FrontEndSenderToRM(RMPort_map.get("RM4"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Wrong" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                frontEndSenderToRM1.start();
+                frontEndSenderToRM2.start();
+                frontEndSenderToRM3.start();
+                frontEndSenderToRM4.start();
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
-            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            } else if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM4 have problem
                 // Send status to all the RM
-                
-                
+                FrontEndSenderToRM frontEndSenderToRM1 = new FrontEndSenderToRM(RMPort_map.get("RM1"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Wrong" + "#");
+                FrontEndSenderToRM frontEndSenderToRM2 = new FrontEndSenderToRM(RMPort_map.get("RM2"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Wrong" + "#");
+                FrontEndSenderToRM frontEndSenderToRM3 = new FrontEndSenderToRM(RMPort_map.get("RM3"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Wrong" + "#");
+                FrontEndSenderToRM frontEndSenderToRM4 = new FrontEndSenderToRM(RMPort_map.get("RM4"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Wrong" + "#");
+                frontEndSenderToRM1.start();
+                frontEndSenderToRM2.start();
+                frontEndSenderToRM3.start();
+                frontEndSenderToRM4.start();
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }
         }
-        
+
         return "Got problem on Front End";
     }
 
-        
     @Override
     public String transferLoan(String loanID, String currentBank, String otherBank) {
         FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "transferLoan#" + loanID + "," + currentBank + "," + otherBank + "#");
@@ -209,78 +274,73 @@ public class DlmsFrontEnd extends dlmsPOA {
 
         String request_id = sender.result;
         long startTime = System.currentTimeMillis();
-        
+
         //There is no result from bank server
-        while(ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000){
+        while (ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000) {
             try {
                 sleep(5000);
-                
+
             } catch (Exception ex) {
                 System.out.println(ex);
             }
         }
-        
-        while(ResultMap.get(request_id).size() < 4 && (System.currentTimeMillis() - startTime) < 60000){
+
+        while (ResultMap.get(request_id).size() < 4 && (System.currentTimeMillis() - startTime) < 60000) {
         }
-        
+
         // Time out problem
-        if((System.currentTimeMillis() - startTime) > 60000){
-        
-        }else{
+        if ((System.currentTimeMillis() - startTime) > 60000) {
+
+        } else {
             // Everything is ok, now we check all result
             Hashtable<String, String> re_map = ResultMap.get(request_id);
-            if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // all equals
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
-                
-            }else if(!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+
+            } else if (!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM1 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM2")));
-            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3")))) 
+            } else if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && !re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM2 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
-            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            } else if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))
-                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM3 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
-            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            } else if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM4 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }
         }
-        
+
         return "Got problem on Front End";
     }
-    
+
     @Override
     public String getLoan(String Bank, String accountNumber, String password, String loanAmount) {
         FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "getLoan#" + Bank + "," + accountNumber + "," + password + "," + loanAmount + "#");
@@ -288,75 +348,70 @@ public class DlmsFrontEnd extends dlmsPOA {
 
         String request_id = sender.result;
         long startTime = System.currentTimeMillis();
-        
+
         //There is no result from bank server
-        while(ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000){
+        while (ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000) {
             try {
                 sleep(5000);
-                
+
             } catch (Exception ex) {
                 System.out.println(ex);
             }
         }
-        
-        while(ResultMap.get(request_id).size() < 4 && (System.currentTimeMillis() - startTime) < 60000){
+
+        while (ResultMap.get(request_id).size() < 4 && (System.currentTimeMillis() - startTime) < 60000) {
         }
-        
+
         // Time out problem
-        if((System.currentTimeMillis() - startTime) > 60000){
-        
-        }else{
+        if ((System.currentTimeMillis() - startTime) > 60000) {
+
+        } else {
             // Everything is ok, now we check all result
             Hashtable<String, String> re_map = ResultMap.get(request_id);
-            if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // all equals
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
-                
-            }else if(!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+
+            } else if (!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM1 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM2")));
-            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3")))) 
+            } else if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && !re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM2 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
-            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            } else if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))
-                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM3 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
-            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            } else if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM4 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }
         }
-        
+
         return "Got problem on Front End";
     }
 
@@ -366,157 +421,147 @@ public class DlmsFrontEnd extends dlmsPOA {
         sender.run();
 
         String request_id = sender.result;
-        
+
         long startTime = System.currentTimeMillis();
-        
+
         //There is no result from bank server
-        while(ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000){
+        while (ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000) {
             try {
                 sleep(5000);
-                
+
             } catch (Exception ex) {
                 System.out.println(ex);
             }
         }
-        
-        while(ResultMap.get(request_id).size() < 4 && (System.currentTimeMillis() - startTime) < 60000){
+
+        while (ResultMap.get(request_id).size() < 4 && (System.currentTimeMillis() - startTime) < 60000) {
         }
-        
+
         // Time out problem
-        if((System.currentTimeMillis() - startTime) > 60000){
-        
-        }else{
+        if ((System.currentTimeMillis() - startTime) > 60000) {
+
+        } else {
             // Everything is ok, now we check all result
             Hashtable<String, String> re_map = ResultMap.get(request_id);
-            if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // all equals
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
-            }else if(!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            } else if (!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM1 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM2")));
-            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3")))) 
+            } else if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && !re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM2 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
-            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            } else if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))
-                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM3 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
-            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            } else if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM4 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }
         }
-        
+
         return "Got problem on Front End";
     }
 
     @Override
     public String printCustomerInfo(String Bank) {
-        
+
         FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "printCustomerInfo#" + Bank + "#");
         sender.run();
 
         String request_id = sender.result;
-        
+
         long startTime = System.currentTimeMillis();
-        
+
         //There is no result from bank server
-        while(ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000){
+        while (ResultMap.get(request_id) == null && (System.currentTimeMillis() - startTime) < 60000) {
             try {
                 sleep(5000);
-                
+
             } catch (Exception ex) {
                 System.out.println(ex);
             }
         }
-        
-        while(ResultMap.get(request_id).size() < 4 && (System.currentTimeMillis() - startTime) < 60000){
+
+        while (ResultMap.get(request_id).size() < 4 && (System.currentTimeMillis() - startTime) < 60000) {
         }
-        
+
         // Time out problem
-        if((System.currentTimeMillis() - startTime) > 60000){
-        
-        }else{
+        if ((System.currentTimeMillis() - startTime) > 60000) {
+
+        } else {
             // Everything is ok, now we check all result
             Hashtable<String, String> re_map = ResultMap.get(request_id);
-            if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // all equals
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
-                
-            }else if(!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+
+            } else if (!re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM1 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM2")));
-            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3")))) 
+            } else if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
                     && !re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM2 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
-            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            } else if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))
-                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM3 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
-            }else if(re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2")))) 
+            } else if (re_map.get(Integer.toString(RMPort_map.get("RM1"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM2"))))
                     && re_map.get(Integer.toString(RMPort_map.get("RM2"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM3"))))
-                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))){
+                    && !re_map.get(Integer.toString(RMPort_map.get("RM3"))).equals(re_map.get(Integer.toString(RMPort_map.get("RM4"))))) {
                 // RM4 have problem
                 // Send status to all the RM
-                
-                
+
                 // Send back correct result to FE
                 return re_map.get(Integer.toString(RMPort_map.get("RM1")));
             }
         }
-        
+
         return "Got problem on Front End";
     }
 
@@ -575,5 +620,4 @@ public class DlmsFrontEnd extends dlmsPOA {
 
         return result;
     }*/
-
 }
