@@ -17,15 +17,15 @@ import rm.ReplicaManager1;
 public class BankServant implements BankServantInterface {
 
     public int rm_port;
-    public int port;
-    public int[] other_port;
+    public String bankName;
+    public HashMap<String, Integer> port_map;
     public int fe_port;
 
     public BankServant() {
     }
 
     //Initialize
-    public BankServant(int _port, int[] _other_port, int rm_port, int fe_port) {
+    public BankServant(String _bankName, HashMap<String, Integer> _port_map, int rm_port, int fe_port) {
         account_HashMap = new HashMap<String, ArrayList<Account>>();
         loan_HashMap = new HashMap<String, Loan>();
         
@@ -33,9 +33,9 @@ public class BankServant implements BankServantInterface {
             account_HashMap.put(ch, new ArrayList<Account>());
         }
         
-        this.port = _port;
+        this.bankName = _bankName;
 
-        this.other_port = _other_port;
+        this.port_map = _port_map;
         
         this.rm_port = rm_port;
         this.fe_port = fe_port;
@@ -45,7 +45,7 @@ public class BankServant implements BankServantInterface {
     }
 
     //Initialize from other server
-    public BankServant(int _port, int[] _other_port, int _target_port, int rm_port, int fe_port) {
+    public BankServant(String _bankName, HashMap<String, Integer> _port_map, int _target_port, int rm_port, int fe_port) {
         account_HashMap = new HashMap<String, ArrayList<Account>>();
         loan_HashMap = new HashMap<String, Loan>();
         
@@ -53,10 +53,9 @@ public class BankServant implements BankServantInterface {
             account_HashMap.put(ch, new ArrayList<Account>());
         }
         
-        this.port = _port;
-        this.other_port = _other_port;
+        this.bankName = _bankName;
 
-        this.other_port = _other_port;
+        this.port_map = _port_map;
         
         this.rm_port = rm_port;
         this.fe_port = fe_port;
@@ -118,9 +117,18 @@ public class BankServant implements BankServantInterface {
         }
 
         if (foundAccount != null && foundAccount.password.equals(password)) {
+            
+            int[] rest_port = new int[]{};
+            int count = 0;
+            for(String s : port_map.keySet()){
+                if(!s.equals(bankName)){
+                    rest_port[count] = port_map.get(s);
+                    count++;
+                }
+            }
 
-            BankAsClient client0 = new BankAsClient(other_port[0], "search" + ":" + foundAccount.firstName + "," + foundAccount.lastName + ":");
-            BankAsClient client1 = new BankAsClient(other_port[1], "search" + ":" + foundAccount.firstName + "," + foundAccount.lastName + ":");
+            BankAsClient client0 = new BankAsClient(rest_port[0], "search" + ":" + foundAccount.firstName + "," + foundAccount.lastName + ":");
+            BankAsClient client1 = new BankAsClient(rest_port[1], "search" + ":" + foundAccount.firstName + "," + foundAccount.lastName + ":");
 
             client0.start();
             client1.start();
@@ -305,7 +313,7 @@ public class BankServant implements BankServantInterface {
         public void run() {
             try {
 
-                DatagramSocket serverSocket = new DatagramSocket(port);
+                DatagramSocket serverSocket = new DatagramSocket(port_map.get(bankName));
 
                 byte[] receiveData = new byte[1024];
                 byte[] sendData = new byte[1024];
