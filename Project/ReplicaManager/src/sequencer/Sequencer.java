@@ -28,33 +28,25 @@ public class Sequencer {
         
         SeqReceiver seqReceiver = new SeqReceiver();
         seqReceiver.start();
+        
+        SequenceQueueConsumer sequenceQueueConsumer = new SequenceQueueConsumer();
+        sequenceQueueConsumer.start();
     }
-
-    class SeqReceiver extends Thread {
-
+    
+    class SequenceQueueConsumer extends Thread{
+        
         @Override
-        public void run() {
-            try {
-                DatagramSocket receiveSocket = new DatagramSocket(Sequencer_port);
-
-                byte[] receiveData = new byte[1024];
-                byte[] sendData = new byte[1024];
-
-                while (true) {
-                    DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-                    receiveSocket.receive(receivePacket);
-                    String request = new String(receivePacket.getData());
-                    InetAddress inetAddress = receivePacket.getAddress();
-                    int port = receivePacket.getPort();
-                    String[] data = request.split(",");
-                    String bank = data[0];
-                    seqQueue.add(Integer.toString(++seqCount) + "|" + request);
-                    
-                    /*
+        public void run(){
+            
+            while(true){
+                if(seqQueue.size() != 0){
                     synchronized (seqQueue) {
                         String sendMessage = seqQueue.peek();
-                        //!!!!!! need add checking process to determine which bank
-                        switch(bank){
+                        
+                        String[] request = sendMessage.split("$")[1].split("#");
+                        String requestBank = request[1].split(",")[0];
+                        
+                        switch(requestBank){
                             case "A":
                                 SeqSender sender1 = new SeqSender(bankA[0], sendMessage);
                                 SeqSender sender2 = new SeqSender(bankA[1], sendMessage);
@@ -113,9 +105,34 @@ public class Sequencer {
                                 break;
                         }
                         
-                        
                         seqQueue.poll();
-                    }*/
+                    }
+                }
+            }
+            
+        }
+    }
+
+    class SeqReceiver extends Thread {
+
+        @Override
+        public void run() {
+            try {
+                DatagramSocket receiveSocket = new DatagramSocket(Sequencer_port);
+
+                byte[] receiveData = new byte[1024];
+                byte[] sendData = new byte[1024];
+
+                while (true) {
+                    DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                    receiveSocket.receive(receivePacket);
+                    String request = new String(receivePacket.getData());
+                    InetAddress inetAddress = receivePacket.getAddress();
+                    int port = receivePacket.getPort();
+                    
+                    synchronized(seqQueue){
+                        seqQueue.add(Integer.toString(++seqCount) + "$" + request);
+                    }
                     
                     sendData = (seqCount+"").getBytes();
                     
