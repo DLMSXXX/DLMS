@@ -128,6 +128,10 @@ public class DlmsFrontEnd extends dlmsPOA {
 
     @Override
     public String getLoan(String Bank, String accountNumber, String password, String loanAmount) {
+        FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "getLoan#" + Bank + "," + accountNumber + "," + password + "," + loanAmount + "#");
+        sender.run();
+
+        String request_id = sender.result;
         // TODO Auto-generated method stub
         /*String result = null;
         DatagramSocket aSocket = null;
@@ -147,11 +151,16 @@ public class DlmsFrontEnd extends dlmsPOA {
             System.out.println("IO: " + e.getMessage());
         }
         return result;*/
-        return "";
+        return request_id;
     }
 
     @Override
     public String delayPayment(String Bank, String loanID, String currentD, String newD) {
+        FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "delayPayment#" + Bank + "," + loanID + "," + currentD + "," + newD + "#");
+        sender.run();
+
+        String request_id = sender.result;
+        
         /*
         String result = null;
         DatagramSocket aSocket = null;
@@ -176,6 +185,12 @@ public class DlmsFrontEnd extends dlmsPOA {
 
     @Override
     public String printCustomerInfo(String Bank) {
+        
+        FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "printCustomerInfo#" + Bank + "#");
+        sender.run();
+
+        String request_id = sender.result;
+        
         /*
         String result = null;
         DatagramSocket aSocket = null;
@@ -195,11 +210,16 @@ public class DlmsFrontEnd extends dlmsPOA {
             System.out.println("IO: " + e.getMessage());
         }
         return result;*/
-        return "";
+        return request_id;
     }
 
     @Override
     public String transferLoan(String loanID, String currentBank, String otherBank) {
+        
+        FrontEndSender sender = new FrontEndSender(SequencerPortNumber, "transferLoan#" + loanID + "," +  currentBank + "," + otherBank + "#");
+        sender.run();
+
+        String request_id = sender.result;
         /*
         String result = null;
         DatagramSocket aSocket = null;
@@ -219,7 +239,7 @@ public class DlmsFrontEnd extends dlmsPOA {
             System.out.println("IO: " + e.getMessage());
         }
         return result;*/
-        return "";
+        return request_id;
     }
 
     //method to receive from banks, compare and send to RMs
