@@ -234,7 +234,7 @@ public class dlmsImpl {
                     }
                     /* The transfer has been done, try to delete this account */
                     if (loans.remove(key, loans.get(key))) {
-                        return "Done";
+                        return "DONE";
                     } else {
                         message = "rollback:" + transferCustomer.getLastName()+ "," + accountNumber + "," + id + ":";
                         client = new BankAsClient(Integer.valueOf(otherBank), message);

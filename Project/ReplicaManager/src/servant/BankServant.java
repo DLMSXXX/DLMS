@@ -200,7 +200,7 @@ public class BankServant implements BankServantInterface {
                 if (client.getResult().equals("Yes")) {
                     //if operation done well
                     //if not well -> roll back
-                    loan_HashMap.remove(loan);
+                    loan_HashMap.remove(loan.ID);
                     if (loan_HashMap.get(loan.ID) != null) {
                         content = "rollback" + ":" + foundAccount.lastName + "," + foundAccount.accountNumber + "," + loan.ID + ":";
                         client = new BankAsClient(Integer.valueOf(port_map.get(otherBank)), content);
@@ -478,7 +478,7 @@ public class BankServant implements BankServantInterface {
                             Loan loan = loan_HashMap.get(content_array[0]);
                             //unlock loan object
                             synchronized (loan) {
-                                loan_HashMap.remove(content_array[2]);
+                                loan_HashMap.remove(content_array[0]);
                                 loan.notify();
                             }
                         } 
