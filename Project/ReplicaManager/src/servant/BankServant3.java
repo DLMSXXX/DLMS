@@ -328,7 +328,9 @@ public class BankServant3 {
 
                     System.out.println(sentence.trim());
                     
-                    if (sentence.contains("%")) {
+                    if(sentence.equals("shutdown")){
+                        serverSocket.close();
+                    } else if (sentence.contains("%")) {
                         // message from sequencer
                         String[] message = sentence.split("%");
                         String sequenceId = message[0];
