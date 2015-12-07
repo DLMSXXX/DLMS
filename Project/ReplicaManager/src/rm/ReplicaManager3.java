@@ -162,14 +162,14 @@ public class ReplicaManager3 {
                                     sender.run();
 
                                     stringToHash2(sender.result, ReplicaManager3.this);
-                                    
+
                                 } else if (rm3Status.equals("Running")) {
                                     //ask for data
                                     RMSender sender = new RMSender(Integer.parseInt(rmAndItStatus[3].split("%")[0]), "ASK");
                                     sender.run();
 
                                     stringToHash2(sender.result, ReplicaManager3.this);
-                                    
+
                                 } else if (rm4Status.equals("Running")) {
                                     //ask for data
                                     RMSender sender = new RMSender(Integer.parseInt(rmAndItStatus[3].split("%")[0]), "ASK");
@@ -194,62 +194,79 @@ public class ReplicaManager3 {
 
     public void stringToHash2(String s, ReplicaManager3 rm) {
         String banks[] = s.split("!");
-        String elements[] = banks[0].split("@");
-        String customers[] = elements[0].split("|");
-        String loans[] = elements[1].split("|");
 
-        for (int i = 0; i < customers.length; i++) {
-            String token[] = customers[i].split(",");
-            Account customer = new Account(token[1].trim(), token[2].trim(), token[3].trim(), token[4].trim(), token[5].trim(), 1000);
-            String key = Character.toString(token[1].trim().charAt(0));
-            ArrayList<Account> customerList = rm.BankServantMap.get("A").account_HashMap.get(key);
-            customerList.add(customer);
-            rm.BankServantMap.get("A").account_HashMap.put(key, customerList);
-        }
-        for (int i = 0; i < loans.length; i++) {
-            String token[] = loans[i].split(",");
-            Loan loan = new Loan(token[0].trim(), token[1].trim(), token[2].trim(), token[3].trim());
-            String key = token[0].trim();
-            rm.BankServantMap.get("A").loan_HashMap.put(key, loan);
-        }
+        if (!banks[0].equals("@")) {
+            String elements[] = banks[0].split("@");
+            String customers[] = elements[0].split(";");
+            String loans[] = {};
+            if (elements.length > 1) {
+                loans = elements[1].split(";");
+            }
 
-        String elements2[] = banks[0].split("@");
-        String customers2[] = elements[0].split("|");
-        String loans2[] = elements[1].split("|");
-
-        for (int i = 0; i < customers2.length; i++) {
-            String token[] = customers2[i].split(",");
-            Account customer = new Account(token[1].trim(), token[2].trim(), token[3].trim(), token[4].trim(), token[5].trim(), 1000);
-            String key = Character.toString(token[1].trim().charAt(0));
-            ArrayList<Account> customerList = rm.BankServantMap.get("B").account_HashMap.get(key);
-            customerList.add(customer);
-            rm.BankServantMap.get("B").account_HashMap.put(key, customerList);
-        }
-        for (int i = 0; i < loans2.length; i++) {
-            String token[] = loans2[i].split(",");
-            Loan loan = new Loan(token[0].trim(), token[1].trim(), token[2].trim(), token[3].trim());
-            String key = token[0].trim();
-            rm.BankServantMap.get("B").loan_HashMap.put(key, loan);
+            for (int i = 0; i < customers.length; i++) {
+                String token[] = customers[i].split(",");
+                Account customer = new Account(token[1].trim(), token[2].trim(), token[3].trim(), token[4].trim(), token[5].trim(), 1000);
+                String key = Character.toString(token[1].trim().charAt(0));
+                ArrayList<Account> customerList = rm.BankServantMap.get("A").account_HashMap.get(key);
+                customerList.add(customer);
+                rm.BankServantMap.get("A").account_HashMap.put(key, customerList);
+            }
+            for (int i = 0; i < loans.length; i++) {
+                String token[] = loans[i].split(",");
+                Loan loan = new Loan(token[0].trim(), token[1].trim(), token[2].trim(), token[3].trim());
+                String key = token[0].trim();
+                rm.BankServantMap.get("A").loan_HashMap.put(key, loan);
+            }
         }
 
-        String elements3[] = banks[0].split("@");
-        String customers3[] = elements[0].split("|");
-        String loans3[] = elements[1].split("|");
+        if (!banks[1].equals("@")) {
+            String elements2[] = banks[1].split("@");
+            String customers2[] = elements2[0].split(";");
+            String loans2[] = {};
+            if (elements2.length > 1){
+                loans2 = elements2[1].split(";");
+            }
+            
+            for (int i = 0; i < customers2.length; i++) {
+                String token[] = customers2[i].split(",");
+                Account customer = new Account(token[1].trim(), token[2].trim(), token[3].trim(), token[4].trim(), token[5].trim(), 1000);
+                String key = Character.toString(token[1].trim().charAt(0));
+                ArrayList<Account> customerList = rm.BankServantMap.get("B").account_HashMap.get(key);
+                customerList.add(customer);
+                rm.BankServantMap.get("B").account_HashMap.put(key, customerList);
+            }
+            for (int i = 0; i < loans2.length; i++) {
+                String token[] = loans2[i].split(",");
+                Loan loan = new Loan(token[0].trim(), token[1].trim(), token[2].trim(), token[3].trim());
+                String key = token[0].trim();
+                rm.BankServantMap.get("B").loan_HashMap.put(key, loan);
+            }
+        }
+        
+        if(!banks[2].equals("@")){
+            String elements3[] = banks[0].split("@");
+            String customers3[] = elements3[0].split(";");
+            String loans3[] = {};
+            if (customers3.length > 1){
+                loans3 = elements3[1].split(";");
+            }
 
-        for (int i = 0; i < customers3.length; i++) {
-            String token[] = customers3[i].split(",");
-            Account customer = new Account(token[1].trim(), token[2].trim(), token[3].trim(), token[4].trim(), token[5].trim(), 1000);
-            String key = Character.toString(token[1].trim().charAt(0));
-            ArrayList<Account> customerList = rm.BankServantMap.get("C").account_HashMap.get(key);
-            customerList.add(customer);
-            rm.BankServantMap.get("C").account_HashMap.put(key, customerList);
+            for (int i = 0; i < customers3.length; i++) {
+                String token[] = customers3[i].split(",");
+                Account customer = new Account(token[1].trim(), token[2].trim(), token[3].trim(), token[4].trim(), token[5].trim(), 1000);
+                String key = Character.toString(token[1].trim().charAt(0));
+                ArrayList<Account> customerList = rm.BankServantMap.get("C").account_HashMap.get(key);
+                customerList.add(customer);
+                rm.BankServantMap.get("C").account_HashMap.put(key, customerList);
+            }
+            for (int i = 0; i < loans3.length; i++) {
+                String token[] = loans3[i].split(",");
+                Loan loan = new Loan(token[0].trim(), token[1].trim(), token[2].trim(), token[3].trim());
+                String key = token[0].trim();
+                rm.BankServantMap.get("C").loan_HashMap.put(key, loan);
+            }
         }
-        for (int i = 0; i < loans3.length; i++) {
-            String token[] = loans3[i].split(",");
-            Loan loan = new Loan(token[0].trim(), token[1].trim(), token[2].trim(), token[3].trim());
-            String key = token[0].trim();
-            rm.BankServantMap.get("C").loan_HashMap.put(key, loan);
-        }
+        
     }
 
     public String hashToString2(ReplicaManager3 rm) {
@@ -258,12 +275,12 @@ public class ReplicaManager3 {
         for (ArrayList<Account> account_list : rm.BankServantMap.get("A").account_HashMap.values()) {
             for (Account account : account_list) {
                 result += account.accountNumber + "," + account.firstName + "," + account.lastName + "," + account.emailAddress + "," + account.phoneNumber
-                        + "," + account.password + "|";
+                        + "," + account.password + ";";
             }
         }
         result += "@";
         for (Loan temp : rm.BankServantMap.get("A").loan_HashMap.values()) {
-            result += temp.ID + "," + temp.accountNumber + "," + temp.amount + "," + temp.dueDate + "|";
+            result += temp.ID + "," + temp.accountNumber + "," + temp.amount + "," + temp.dueDate + ";";
         }
 
         result += "!";
@@ -271,12 +288,12 @@ public class ReplicaManager3 {
         for (ArrayList<Account> account_list : rm.BankServantMap.get("B").account_HashMap.values()) {
             for (Account account : account_list) {
                 result += account.accountNumber + "," + account.firstName + "," + account.lastName + "," + account.emailAddress + "," + account.phoneNumber
-                        + "," + account.password + "|";
+                        + "," + account.password + ";";
             }
         }
         result += "@";
         for (Loan temp : rm.BankServantMap.get("B").loan_HashMap.values()) {
-            result += temp.ID + "," + temp.accountNumber + "," + temp.amount + "," + temp.dueDate + "|";
+            result += temp.ID + "," + temp.accountNumber + "," + temp.amount + "," + temp.dueDate + ";";
         }
 
         result += "!";
@@ -284,12 +301,12 @@ public class ReplicaManager3 {
         for (ArrayList<Account> account_list : rm.BankServantMap.get("C").account_HashMap.values()) {
             for (Account account : account_list) {
                 result += account.accountNumber + "," + account.firstName + "," + account.lastName + "," + account.emailAddress + "," + account.phoneNumber
-                        + "," + account.password + "|";
+                        + "," + account.password + ";";
             }
         }
         result += "@";
         for (Loan temp : rm.BankServantMap.get("C").loan_HashMap.values()) {
-            result += temp.ID + "," + temp.accountNumber + "," + temp.amount + "," + temp.dueDate + "|";
+            result += temp.ID + "," + temp.accountNumber + "," + temp.amount + "," + temp.dueDate + ";";
         }
 
         //System.out.println(result); 
