@@ -276,6 +276,8 @@ public class ReplicaManager2 {
                                 String ask = "ASK";
                                 DatagramPacket datagramPacket = new DatagramPacket(ask.getBytes(), _port);
                                 serverSocket.send(datagramPacket);
+                                
+                                serverSocket.receive(receivePacket);
                                 receivePacket = new DatagramPacket(receiveData, _port);
                                 String data = new String(receivePacket.getData());
                                 stringToHash(data, ReplicaManager2.this);
