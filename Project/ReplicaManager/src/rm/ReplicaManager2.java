@@ -53,6 +53,33 @@ public class ReplicaManager2 {
         receiver.start();
     }
 
+    public void renewBankServant() {
+        try {
+            //close listening port
+            RMSender bankA = new RMSender(port_map.get("A"), "shutdown");
+            RMSender bankB = new RMSender(port_map.get("B"), "shutdown");
+            RMSender bankC = new RMSender(port_map.get("C"), "shutdown");
+
+            bankA.start();
+            bankB.start();
+            bankC.start();
+
+            bankA.join();
+            bankB.join();
+            bankC.join();
+
+            BankServantMap.remove("A");
+            BankServantMap.remove("B");
+            BankServantMap.remove("C");
+
+            BankServantMap.put("A", new dlmsImpl("A", port_map, RM_port, FE_port));
+            BankServantMap.put("B", new dlmsImpl("B", port_map, RM_port, FE_port));
+            BankServantMap.put("C", new dlmsImpl("C", port_map, RM_port, FE_port));
+        } catch (InterruptedException ex) {
+
+        }
+    }
+
     //usage: send request msg to other rm
     private class RMSender extends Thread {
 
@@ -262,6 +289,10 @@ public class ReplicaManager2 {
                                     break;
                                 }
                                 Wrong_Count++;
+                                if (Wrong_Count > 3) {
+                                    renewBankServant();
+                                    Wrong_Count = 0;
+                                }
                                 if (rm1Status.equals("Running")) {
                                     _port = Integer.parseInt(rmAndItStatus[1].split("%")[0]);
                                     //ask for data
