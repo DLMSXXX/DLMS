@@ -6,7 +6,11 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import model.Account;
+import model.Loan;
+import servant.BankServant;
 import servant.BankServant3;
 
 /**
@@ -194,12 +198,21 @@ public class ReplicaManager3 {
                             Wrong_Count++;
                             if(rm1Status.equals("Running")){
                                 //ask for data
+                                RMSender sender = new RMSender(Integer.parseInt(rmAndItStatus[1].split("%")[0]), "");
+                                sender.run();
+                                
+                                String data = sender.result;
+                                
+                                
                             }else if(rm2Status.equals("Running")){
                                 //ask for data
+                                
                             }else if(rm3Status.equals("Running")){
                                 //ask for data
+                                
                             }else if(rm4Status.equals("Running")){
                                 //ask for data
+                                
                             }
                         }
                     }
@@ -212,5 +225,31 @@ public class ReplicaManager3 {
             }
         }
         
+        
+        
+        public void stringToHash2(String s, BankServant3 bank)
+    {
+        String elements[] = s.split("@");
+        String customers[] = elements[0].split("|");
+        String loans[] = elements[1].split("|");
+            
+        for (int i = 0; i<customers.length; i++)
+        {
+            String token[] = customers[i].split(",");
+            Account customer = new Account(token[1].trim(), token[2].trim(), token[3].trim(), token[4].trim(), token[5].trim(),1000);    
+            String key = Character.toString(token[1].trim().charAt(0));
+            ArrayList<Account> customerList = bank.account_HashMap.get(key);
+            customerList.add(customer);
+            bank.account_HashMap.put(key, customerList);
+        }
+        
+        for (int i = 0; i<loans.length; i++)
+        {
+            String token[] = loans[i].split(",");
+            Loan loan = new Loan(token[0].trim(), token[1].trim(), token[2].trim(), token[3].trim());
+            String key = token[0].trim();
+            bank.loan_HashMap.put(key, loan);
+        }
+    }
     }
 }
