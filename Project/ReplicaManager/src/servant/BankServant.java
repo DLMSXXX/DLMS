@@ -478,7 +478,7 @@ public class BankServant implements BankServantInterface {
                             Loan loan = loan_HashMap.get(content_array[0]);
                             //unlock loan object
                             synchronized (loan) {
-                                loan_HashMap.remove(content_array[2]);
+                                loan_HashMap.remove(content_array[0]);
                                 loan.notify();
                             }
                         } 
