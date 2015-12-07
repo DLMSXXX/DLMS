@@ -15,9 +15,8 @@ import model2.Loan;
 
 public class dlmsImpl {
 
-    private HashMap<String, List<Customer>> accounts = new HashMap<String, List<Customer>>();
-    ;
-	private HashMap<Integer, Loan> loans = new HashMap<Integer, Loan>();
+    public HashMap<String, List<Customer>> accounts = new HashMap<String, List<Customer>>();
+    public HashMap<Integer, Loan> loans = new HashMap<Integer, Loan>();
     public static final String[] alphabet = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
         "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
     public String bankName;

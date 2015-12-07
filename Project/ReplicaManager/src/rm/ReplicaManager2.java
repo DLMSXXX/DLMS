@@ -10,25 +10,25 @@ import java.util.HashMap;
 import servant.dlmsImpl;
 
 public class ReplicaManager2 {
-  
+
     public HashMap<String, Integer> port_map;
-    
-    HashMap<String, dlmsImpl> BankServantMap;
+
+    public HashMap<String, dlmsImpl> BankServantMap;
 
     private int[] other_rm;
-    
+
     // RMs status
     public String rm1Status;
     public String rm2Status;
     public String rm3Status;
     public String rm4Status;
-    
+
     private int RM_port, FE_port;
-    
+
     // wrong operations recording
     private int Wrong_Count = 0;
-    
-    public ReplicaManager2(int bankA_port, int bankB_port, int bankC_port, int rm_port, int[] other_rm_port, int fe_port){
+
+    public ReplicaManager2(int bankA_port, int bankB_port, int bankC_port, int rm_port, int[] other_rm_port, int fe_port) {
         //set each bank port
         port_map = new HashMap<String, Integer>();
         port_map.put("A", bankA_port);
@@ -36,30 +36,28 @@ public class ReplicaManager2 {
         port_map.put("C", bankC_port);
         //set other rm array
         other_rm = other_rm_port;
-        
+
         RM_port = rm_port;
         FE_port = fe_port;
-    
+
         BankServantMap = new HashMap<String, dlmsImpl>();
         BankServantMap.put("A", new dlmsImpl("A", port_map, RM_port, FE_port));
         BankServantMap.put("B", new dlmsImpl("B", port_map, RM_port, FE_port));
         BankServantMap.put("C", new dlmsImpl("C", port_map, RM_port, FE_port));
-        
+
         //receiver thread
         Thread receiver = new Thread(new RMReceiver(RM_port));
         receiver.start();
     }
-    
-    
-    
+
     //usage: send request msg to other rm
-    private class RMSender extends Thread{
-        
+    private class RMSender extends Thread {
+
         private int otherBankPort;
         private String content;
         public String result;
-        
-        public RMSender(int otherBankPort, String content){
+
+        public RMSender(int otherBankPort, String content) {
             this.otherBankPort = otherBankPort;
             this.content = content;
         }
@@ -72,12 +70,11 @@ public class ReplicaManager2 {
                 byte[] sendData = new byte[1024];
 
                 sendData = content.getBytes();
-                
+
                 DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, otherBankPort);
                 clientSocket.send(sendPacket);
                 clientSocket.close();
 
-                
             } catch (SocketException ex) {
                 System.out.println(ex.toString());
             } catch (UnknownHostException ex) {
@@ -85,16 +82,16 @@ public class ReplicaManager2 {
             } catch (IOException ex) {
                 System.out.println(ex.toString());
             }
-            
+
         }
-        
+
     }
-    
-    private class RMReceiver implements Runnable{
-        
+
+    private class RMReceiver implements Runnable {
+
         int RMport;
-        
-        public RMReceiver(int RMport){
+
+        public RMReceiver(int RMport) {
             this.RMport = RMport;
         }
 
@@ -102,8 +99,8 @@ public class ReplicaManager2 {
         public void run() {
             try {
                 DatagramSocket serverSocket = new DatagramSocket(RMport);
-                
-                while(true){
+
+                while (true) {
                     byte[] receiveData = new byte[1024];
                     byte[] sendData = new byte[1024];
                     DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
@@ -111,40 +108,54 @@ public class ReplicaManager2 {
                     String sentence = new String(receivePacket.getData());
                     InetAddress IPAddress = receivePacket.getAddress();
                     int port = receivePacket.getPort();
-                    
-                    //***************************
-                    //UDP message processing...
-                    //***************************
-                    String rmAndItStatus[] = sentence.split("#");
-                    rm1Status = rmAndItStatus[1].split("%")[1];
-                    rm2Status = rmAndItStatus[2].split("%")[1];
-                    rm3Status = rmAndItStatus[3].split("%")[1];
-                    rm4Status = rmAndItStatus[4].split("%")[1];
-                    System.out.println(RMport);
-                    //check if corresponding bankserver correct, if not recovery
-                    for(int i = 1; i <= 4; i++){
-                        if(rmAndItStatus[i].split("%")[0].equals(Integer.toString(RMport))){
-                            if(rmAndItStatus[i].split("%")[1].equals("Running")) break;
-                            Wrong_Count++;
-                            if(rm1Status.equals("Running")){
-                                //ask for data
-                            }else if(rm2Status.equals("Running")){
-                                //ask for data
-                            }else if(rm3Status.equals("Running")){
-                                //ask for data
-                            }else if(rm4Status.equals("Running")){
-                                //ask for data
+                    if (sentence.equals("ASK")) {
+                        
+                    } else {
+                        //***************************
+                        //UDP message processing...
+                        //***************************
+                        String rmAndItStatus[] = sentence.split("#");
+                        rm1Status = rmAndItStatus[1].split("%")[1];
+                        rm2Status = rmAndItStatus[2].split("%")[1];
+                        rm3Status = rmAndItStatus[3].split("%")[1];
+                        rm4Status = rmAndItStatus[4].split("%")[1];
+                        System.out.println(RMport);
+                        int _port = 0;
+                        //check if corresponding bankserver correct, if not recovery
+                        for (int i = 1; i <= 4; i++) {
+                            if (rmAndItStatus[i].split("%")[0].equals(Integer.toString(RMport))) {
+                                if (rmAndItStatus[i].split("%")[1].equals("Running")) {
+                                    break;
+                                }
+                                Wrong_Count++;
+                                if (rm1Status.equals("Running")) {
+                                    _port = Integer.parseInt(rmAndItStatus[1].split("%")[0]);
+                                    //ask for data
+                                } else if (rm2Status.equals("Running")) {
+                                    _port = Integer.parseInt(rmAndItStatus[2].split("%")[0]);
+                                    //ask for data
+                                } else if (rm3Status.equals("Running")) {
+                                    _port = Integer.parseInt(rmAndItStatus[3].split("%")[0]);
+                                    //ask for data
+                                } else if (rm4Status.equals("Running")) {
+                                    _port = Integer.parseInt(rmAndItStatus[4].split("%")[0]);
+                                    //ask for data
+                                }
+                                String ask = "ASK";
+                                DatagramPacket datagramPacket = new DatagramPacket(ask.getBytes(), _port);
+                                serverSocket.send(datagramPacket);
                             }
                         }
                     }
+
                 }
-            
+
             } catch (SocketException ex) {
                 System.out.println(ex.toString());
             } catch (IOException ex) {
                 System.out.println(ex.toString());
             }
         }
-        
+
     }
 }
