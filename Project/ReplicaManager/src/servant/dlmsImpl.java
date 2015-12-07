@@ -38,7 +38,8 @@ public class dlmsImpl {
         BankAsReceiver receiver = new BankAsReceiver();
         receiver.start();
     }
-
+    
+    
     /**
      * Customer use to open an account in the bank
      *
@@ -295,6 +296,8 @@ public class dlmsImpl {
                         String message = Integer.toString(lastSeq) + "%" + Integer.toString(rmPort) + "#" + send + "#";
                         BankAsSend bankAsSend = new BankAsSend(fePort, message);
                         bankAsSend.start();
+                    } else if(sentence.equals("shutdown")){
+                        serverSocket.close();
                     } else {
                         
                         InetAddress IPAddress = receivePacket.getAddress();
