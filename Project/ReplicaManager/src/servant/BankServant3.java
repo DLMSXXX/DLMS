@@ -93,9 +93,8 @@ public class BankServant3 {
             account = new Account(firstName, lastName, emailAddress, phoneNumber, password, DEFAULT_CREDIT);
             list.add(account);
 
-            //log(firstName + lastName + " " + " create account : " + account.accountNumber);
-            //logCustomer(account.accountNumber, "account created");
-            return account.accountNumber + "1";
+            account.accountNumber = account.accountNumber + "1";
+            return account.accountNumber;
         } else {
             return foundAccount.accountNumber;
         }
