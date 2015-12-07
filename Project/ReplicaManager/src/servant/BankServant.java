@@ -334,7 +334,9 @@ public class BankServant implements BankServantInterface {
 
                     System.out.println(sentence.trim());
                     
-                    if (sentence.contains("%")) {
+                    if(sentence.equals("shutdown")){
+                        serverSocket.close();
+                    } else if (sentence.contains("%")) {
                         // message from sequencer
                         String[] message = sentence.split("%");
                         String sequenceId = message[0];
@@ -493,7 +495,7 @@ public class BankServant implements BankServantInterface {
                 System.out.println("BankAsReceiver Happened Problem");
                 System.out.println("**********************");
                 System.out.println(e.toString());
-            }
+            } 
         }
     }
 }
