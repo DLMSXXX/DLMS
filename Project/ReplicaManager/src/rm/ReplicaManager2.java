@@ -187,7 +187,7 @@ public class ReplicaManager2 {
                                 Wrong_Count++;
                                 
                                 if (rmAndItStatus[i].split("%")[1].equals("Timeout")) {
-                                    System.out.println("RM2: Timeout is more than 3, we renew our bank servant");
+                                    System.out.println("RM2: Timeout, we renew our bank servant");
                                     
                                     renewBankServant();
                                     Wrong_Count = 0;
