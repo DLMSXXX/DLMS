@@ -62,6 +62,15 @@ public class BankServant implements BankServantInterface {
 
         // recovering data from _target_port bank servant
     }
+    
+    public void refreshHashMap(){
+        account_HashMap.clear();
+        loan_HashMap.clear();
+        
+        for(String ch : alphabet){
+            account_HashMap.put(ch, new ArrayList<Account>());
+        }
+    }
 
     //*****************************
     //*****************************
@@ -309,8 +318,8 @@ public class BankServant implements BankServantInterface {
             } catch (Exception e) {
                 System.out.println("**********************");
                 System.out.println("BankAsClient Problem Happened");
-                System.out.println("**********************");
                 System.out.println(e.toString());
+                System.out.println("**********************");
             }
         }
     }
@@ -334,8 +343,9 @@ public class BankServant implements BankServantInterface {
 
                     System.out.println(sentence.trim());
                     
-                    if(sentence.equals("shutdown")){
-                        serverSocket.close();
+                    if(sentence.startsWith("shutdown")){
+                        break;
+                        
                     } else if (sentence.contains("%")) {
                         // message from sequencer
                         String[] message = sentence.split("%");
@@ -489,12 +499,15 @@ public class BankServant implements BankServantInterface {
                         serverSocket.send(sendPacket);
                     }
                 }
+                
+                serverSocket.close();
+                System.out.println("BankServant.class *"+serverSocket.getPort() +"* closed");
 
             } catch (Exception e) {
                 System.out.println("**********************");
                 System.out.println("BankAsReceiver Happened Problem");
-                System.out.println("**********************");
                 System.out.println(e.toString());
+                System.out.println("**********************");
             } 
         }
     }

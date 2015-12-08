@@ -1,6 +1,7 @@
 package rm;
 
 import java.io.IOException;
+import static java.lang.Thread.sleep;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -74,6 +75,8 @@ public class ReplicaManager1 {
             bankB.join();
             bankC.join();
             
+            sleep(10000);
+            
             BankServantMap.remove("A");
             BankServantMap.remove("B");
             BankServantMap.remove("C");
@@ -107,15 +110,20 @@ public class ReplicaManager1 {
                 byte[] receiveData = new byte[1024];
 
                 sendData = content.getBytes();
-
+                
                 DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, otherBankPort);
                 clientSocket.send(sendPacket);
-                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-                clientSocket.receive(receivePacket);
-                String reply = new String(receivePacket.getData());
-                clientSocket.close();
 
-                result = reply.trim();
+                if(!content.equals("shutdown")){
+                    
+                    DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                    clientSocket.receive(receivePacket);
+                    String reply = new String(receivePacket.getData());
+                    
+                    result = reply.trim();
+                }
+                
+                clientSocket.close();
 
             } catch (SocketException ex) {
                 System.out.println(ex.toString());
@@ -178,7 +186,7 @@ public class ReplicaManager1 {
                                 Wrong_Count++;
                                 
                                 // if wrong count bigger than 3, we have to renew whole sever
-                                if(Wrong_Count > 3){
+                                if(Wrong_Count > 2){
                                     renewBankServant();
                                     Wrong_Count = 0;
                                 }
@@ -236,6 +244,8 @@ public class ReplicaManager1 {
             if (elements.length > 1) {
                 loans = elements[1].split(";");
             }
+            
+            rm.BankServantMap.get("A").refreshHashMap();
 
             for (int i = 0; i < customers.length; i++) {
                 String token[] = customers[i].split(",");
@@ -261,6 +271,8 @@ public class ReplicaManager1 {
                 loans2 = elements2[1].split(";");
             }
             
+            rm.BankServantMap.get("B").refreshHashMap();
+            
             for (int i = 0; i < customers2.length; i++) {
                 String token[] = customers2[i].split(",");
                 Account customer = new Account(token[1].trim(), token[2].trim(), token[3].trim(), token[4].trim(), token[5].trim(), 1000);
@@ -284,6 +296,8 @@ public class ReplicaManager1 {
             if (customers3.length > 1){
                 loans3 = elements3[1].split(";");
             }
+            
+            rm.BankServantMap.get("C").refreshHashMap();
 
             for (int i = 0; i < customers3.length; i++) {
                 String token[] = customers3[i].split(",");
