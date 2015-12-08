@@ -183,7 +183,21 @@ public class DlmsFrontEnd extends dlmsPOA {
 
         // Time out problem
         if ((System.currentTimeMillis() - startTime) > 60000) {
-
+            Hashtable<String, String> re_map = ResultMap.get(request_id);
+            if(re_map.get(Integer.toString(RMPort_map.get("RM1"))) == null){
+                FrontEndSenderToRM frontEndSenderToRM1 = new FrontEndSenderToRM(RMPort_map.get("RM1"), "#" + RMPort_map.get("RM1") + "%" + "Timeout" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                frontEndSenderToRM1.start();
+            }else if(re_map.get(Integer.toString(RMPort_map.get("RM2"))) == null){
+                FrontEndSenderToRM frontEndSenderToRM2 = new FrontEndSenderToRM(RMPort_map.get("RM2"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Timeout" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                frontEndSenderToRM2.start();
+            }else if(re_map.get(Integer.toString(RMPort_map.get("RM3"))) == null){
+                FrontEndSenderToRM frontEndSenderToRM3 = new FrontEndSenderToRM(RMPort_map.get("RM3"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Timeout" + "#" + RMPort_map.get("RM4") + "%" + "Running" + "#");
+                frontEndSenderToRM3.start();
+            }else{
+                FrontEndSenderToRM frontEndSenderToRM4 = new FrontEndSenderToRM(RMPort_map.get("RM4"), "#" + RMPort_map.get("RM1") + "%" + "Running" + "#" + RMPort_map.get("RM2") + "%" + "Running" + "#" + RMPort_map.get("RM3") + "%" + "Running" + "#" + RMPort_map.get("RM4") + "%" + "Timeout" + "#");
+                frontEndSenderToRM4.start();
+            }
+            
         } else {
             // Everything is ok, now we check all result
             Hashtable<String, String> re_map = ResultMap.get(request_id);
