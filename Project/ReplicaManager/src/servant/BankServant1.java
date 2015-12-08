@@ -14,18 +14,18 @@ import rm.ReplicaManager1;
  *
  * @author yucunli
  */
-public class BankServant implements BankServantInterface {
+public class BankServant1 implements BankServantInterface {
 
     public int rm_port;
     public String bankName;
     public HashMap<String, Integer> port_map;
     public int fe_port;
 
-    public BankServant() {
+    public BankServant1() {
     }
 
     //Initialize
-    public BankServant(String _bankName, HashMap<String, Integer> _port_map, int rm_port, int fe_port) {
+    public BankServant1(String _bankName, HashMap<String, Integer> _port_map, int rm_port, int fe_port) {
         account_HashMap = new HashMap<String, ArrayList<Account>>();
         loan_HashMap = new HashMap<String, Loan>();
         
@@ -45,7 +45,7 @@ public class BankServant implements BankServantInterface {
     }
 
     //Initialize from other server
-    public BankServant(String _bankName, HashMap<String, Integer> _port_map, int _target_port, int rm_port, int fe_port) {
+    public BankServant1(String _bankName, HashMap<String, Integer> _port_map, int _target_port, int rm_port, int fe_port) {
         account_HashMap = new HashMap<String, ArrayList<Account>>();
         loan_HashMap = new HashMap<String, Loan>();
         

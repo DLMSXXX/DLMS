@@ -9,24 +9,23 @@ import java.util.List;
 import model.Account;
 import model.Loan;
 import rm.ReplicaManager1;
-import static servant.BankServant1.alphabet;
 
 /**
  *
  * @author yucunli
  */
-public class BankServant3 {
+public class BankServant2 implements BankServantInterface {
 
     public int rm_port;
     public String bankName;
     public HashMap<String, Integer> port_map;
     public int fe_port;
 
-    public BankServant3() {
+    public BankServant2() {
     }
 
     //Initialize
-    public BankServant3(String _bankName, HashMap<String, Integer> _port_map, int rm_port, int fe_port) {
+    public BankServant2(String _bankName, HashMap<String, Integer> _port_map, int rm_port, int fe_port) {
         account_HashMap = new HashMap<String, ArrayList<Account>>();
         loan_HashMap = new HashMap<String, Loan>();
         
@@ -46,7 +45,7 @@ public class BankServant3 {
     }
 
     //Initialize from other server
-    public BankServant3(String _bankName, HashMap<String, Integer> _port_map, int _target_port, int rm_port, int fe_port) {
+    public BankServant2(String _bankName, HashMap<String, Integer> _port_map, int _target_port, int rm_port, int fe_port) {
         account_HashMap = new HashMap<String, ArrayList<Account>>();
         loan_HashMap = new HashMap<String, Loan>();
         
@@ -87,6 +86,7 @@ public class BankServant3 {
     public HashMap<String, ArrayList<Account>> account_HashMap;
     public HashMap<String, Loan> loan_HashMap;
 
+    @Override
     public String openAccount(String bank, String firstName, String lastName, String emailAddress, String phoneNumber, String password) {
         Account account = null;
 
@@ -103,13 +103,15 @@ public class BankServant3 {
             account = new Account(firstName, lastName, emailAddress, phoneNumber, password, DEFAULT_CREDIT);
             list.add(account);
 
-            account.accountNumber = account.accountNumber + "1";
+            //log(firstName + lastName + " " + " create account : " + account.accountNumber);
+            //logCustomer(account.accountNumber, "account created");
             return account.accountNumber;
         } else {
             return foundAccount.accountNumber;
         }
     }
 
+    @Override
     public String getLoan(String bank, String accountNumber, String password, String loanAmount, String sequenceId) {
         Account foundAccount = null;
         Loan loan = null;
@@ -170,6 +172,7 @@ public class BankServant3 {
         }
     }
 
+    @Override
     public String transferLoan(String loanID, String currentBank, String otherBank) {
         if (loan_HashMap.get(loanID) == null) {
             return "NotFoundLoan";
@@ -233,6 +236,7 @@ public class BankServant3 {
         return "DONE";
     }
 
+    @Override
     public String delayPayment(String bank, String loanID, String currentDueDate, String newDueDate) {
         Loan loan = loan_HashMap.get(loanID);
 
@@ -249,6 +253,7 @@ public class BankServant3 {
         return newDueDate;
     }
 
+    @Override
     public String printCustomerInfo(String bank) {
         StringBuilder result = new StringBuilder();
         for (String ch : alphabet) {
@@ -496,15 +501,14 @@ public class BankServant3 {
                 }
                 
                 serverSocket.close();
-                System.out.println("BankServant3.class *"+serverSocket.getPort() +"* closed");
+                System.out.println("BankServant.class *"+serverSocket.getPort() +"* closed");
 
             } catch (Exception e) {
                 System.out.println("**********************");
                 System.out.println("BankAsReceiver Happened Problem");
                 System.out.println(e.toString());
                 System.out.println("**********************");
-                
-            }
+            } 
         }
     }
 }

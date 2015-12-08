@@ -13,13 +13,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.Account;
 import model.Loan;
-import servant.BankServant2;
+import servant.BankServant4;
 
-public class ReplicaManager3 {
+public class ReplicaManager4 {
 
     public HashMap<String, Integer> port_map;
 
-    public HashMap<String, BankServant2> BankServantMap;
+    public HashMap<String, BankServant4> BankServantMap;
 
     private int[] other_rm;
 
@@ -34,7 +34,7 @@ public class ReplicaManager3 {
     // wrong operations recording
     private int Wrong_Count = 0;
 
-    public ReplicaManager3(int bankA_port, int bankB_port, int bankC_port, int rm_port, int[] other_rm_port, int fe_port) {
+    public ReplicaManager4(int bankA_port, int bankB_port, int bankC_port, int rm_port, int[] other_rm_port, int fe_port) {
 
         //set each bank port
         port_map = new HashMap<String, Integer>();
@@ -48,11 +48,11 @@ public class ReplicaManager3 {
         FE_port = fe_port;
 
         //3 bank servants
-        BankServantMap = new HashMap<String, BankServant2>();
+        BankServantMap = new HashMap<String, BankServant4>();
         //BankServant para: Bank port, RM_port, FE_port
-        BankServantMap.put("A", new BankServant2("A", port_map, RM_port, FE_port));
-        BankServantMap.put("B", new BankServant2("B", port_map, RM_port, FE_port));
-        BankServantMap.put("C", new BankServant2("C", port_map, RM_port, FE_port));
+        BankServantMap.put("A", new BankServant4("A", port_map, RM_port, FE_port));
+        BankServantMap.put("B", new BankServant4("B", port_map, RM_port, FE_port));
+        BankServantMap.put("C", new BankServant4("C", port_map, RM_port, FE_port));
 
         //receiver thread
         Thread receiver = new Thread(new RMReceiver(RM_port));
@@ -81,9 +81,9 @@ public class ReplicaManager3 {
             BankServantMap.remove("B");
             BankServantMap.remove("C");
             
-            BankServantMap.put("A", new BankServant2("A", port_map, RM_port, FE_port));
-            BankServantMap.put("B", new BankServant2("B", port_map, RM_port, FE_port));
-            BankServantMap.put("C", new BankServant2("C", port_map, RM_port, FE_port));
+            BankServantMap.put("A", new BankServant4("A", port_map, RM_port, FE_port));
+            BankServantMap.put("B", new BankServant4("B", port_map, RM_port, FE_port));
+            BankServantMap.put("C", new BankServant4("C", port_map, RM_port, FE_port));
         } catch (InterruptedException ex) {
             
         }
@@ -113,13 +113,13 @@ public class ReplicaManager3 {
                 
                 DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, otherBankPort);
                 clientSocket.send(sendPacket);
-                
+
                 if(!content.equals("shutdown")){
                     
                     DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                     clientSocket.receive(receivePacket);
                     String reply = new String(receivePacket.getData());
-
+                    
                     result = reply.trim();
                 }
                 
@@ -165,7 +165,7 @@ public class ReplicaManager3 {
                     //***************************
                     if (sentence.contains("ASK")) {
 
-                        String hash_data = hashToString2(ReplicaManager3.this);
+                        String hash_data = hashToString2(ReplicaManager4.this);
                         sendData = hash_data.getBytes();
                         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
                         serverSocket.send(sendPacket);
@@ -183,12 +183,6 @@ public class ReplicaManager3 {
                                 if (rmAndItStatus[i].split("%")[1].equals("Running")) {
                                     break;
                                 }
-                                
-                                if (rmAndItStatus[i].split("%")[1].equals("Timeout")) {
-                                    renewBankServant();
-                                    Wrong_Count = 0;
-                                }
-                                
                                 Wrong_Count++;
                                 
                                 // if wrong count bigger than 3, we have to renew whole sever
@@ -202,28 +196,28 @@ public class ReplicaManager3 {
                                     RMSender sender = new RMSender(Integer.parseInt(rmAndItStatus[1].split("%")[0]), "ASK");
                                     sender.run();
 
-                                    stringToHash2(sender.result, ReplicaManager3.this);
+                                    stringToHash2(sender.result, ReplicaManager4.this);
 
                                 } else if (rm2Status.equals("Running")) {
                                     //ask for data
                                     RMSender sender = new RMSender(Integer.parseInt(rmAndItStatus[2].split("%")[0]), "ASK");
                                     sender.run();
 
-                                    stringToHash2(sender.result, ReplicaManager3.this);
-
+                                    stringToHash2(sender.result, ReplicaManager4.this);
+                                    
                                 } else if (rm3Status.equals("Running")) {
                                     //ask for data
                                     RMSender sender = new RMSender(Integer.parseInt(rmAndItStatus[3].split("%")[0]), "ASK");
                                     sender.run();
 
-                                    stringToHash2(sender.result, ReplicaManager3.this);
-
+                                    stringToHash2(sender.result, ReplicaManager4.this);
+                                    
                                 } else if (rm4Status.equals("Running")) {
                                     //ask for data
                                     RMSender sender = new RMSender(Integer.parseInt(rmAndItStatus[3].split("%")[0]), "ASK");
                                     sender.run();
 
-                                    stringToHash2(sender.result, ReplicaManager3.this);
+                                    stringToHash2(sender.result, ReplicaManager4.this);
                                 }
                             }
                         }
@@ -240,7 +234,7 @@ public class ReplicaManager3 {
 
     }
 
-    public void stringToHash2(String s, ReplicaManager3 rm) {
+    public void stringToHash2(String s, ReplicaManager4 rm) {
         String banks[] = s.split("!");
 
         if (!banks[0].equals("@")) {
@@ -252,7 +246,7 @@ public class ReplicaManager3 {
             }
             
             rm.BankServantMap.get("A").refreshHashMap();
-            
+
             for (int i = 0; i < customers.length; i++) {
                 String token[] = customers[i].split(",");
                 Account customer = new Account(token[1].trim(), token[2].trim(), token[3].trim(), token[4].trim(), token[5].trim(), 1000);
@@ -323,7 +317,7 @@ public class ReplicaManager3 {
         
     }
 
-    public String hashToString2(ReplicaManager3 rm) {
+    public String hashToString2(ReplicaManager4 rm) {
         String result = "";
 
         for (ArrayList<Account> account_list : rm.BankServantMap.get("A").account_HashMap.values()) {
