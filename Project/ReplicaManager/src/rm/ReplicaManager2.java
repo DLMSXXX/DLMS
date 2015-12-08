@@ -21,10 +21,10 @@ public class ReplicaManager2 {
     private int[] other_rm;
 
     // RMs status
-    public String rm1Status;
-    public String rm2Status;
-    public String rm3Status;
-    public String rm4Status;
+    public String rm1Status = "";
+    public String rm2Status = "";
+    public String rm3Status = "";
+    public String rm4Status = "";
 
     private int RM_port, FE_port;
 
@@ -269,8 +269,9 @@ public class ReplicaManager2 {
                     String sentence = new String(receivePacket.getData());
                     InetAddress IPAddress = receivePacket.getAddress();
                     int port = receivePacket.getPort();
-                    if (sentence.equals("ASK")) {
+                    if (sentence.contains("ASK")) {
                         RMSender rmSender = new RMSender(receivePacket.getPort(), hashToString(ReplicaManager2.this));
+                        System.out.println();
                     } else {
                         //***************************
                         //UDP message processing...
@@ -317,7 +318,7 @@ public class ReplicaManager2 {
                             }
                         }
                     }
-
+                    System.out.println("asdfasdf");
                 }
 
             } catch (SocketException ex) {
