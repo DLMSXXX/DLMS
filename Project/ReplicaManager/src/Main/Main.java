@@ -34,7 +34,7 @@ public class Main {
         ReplicaManager2 rm2 = new ReplicaManager2(6003, 6004, 6005, 7002, new int[]{7001, 7003, 7004}, 4000);
         ReplicaManager3 rm3 = new ReplicaManager3(6006, 6007, 6008, 7003, new int[]{7001, 7002, 7004}, 4000);
         ReplicaManager4 rm4 = new ReplicaManager4(6009, 6010, 6011, 7004, new int[]{7001, 7002, 7003}, 4000);
-        
+        /*
         // run front end
         HashMap<String, Integer> rm_port_map = new HashMap<String, Integer>();
         rm_port_map.put("RM1", 7001);
@@ -56,7 +56,7 @@ public class Main {
 
         _rootPOA.the_POAManager().activate();
         _orb.run();
-        
+        */
     }
     
 }

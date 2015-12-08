@@ -13,13 +13,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.Account;
 import model.Loan;
-import servant.BankServant2;
+import servant.BankServant3;
 
 public class ReplicaManager3 {
 
     public HashMap<String, Integer> port_map;
 
-    public HashMap<String, BankServant2> BankServantMap;
+    public HashMap<String, BankServant3> BankServantMap;
 
     private int[] other_rm;
 
@@ -48,11 +48,11 @@ public class ReplicaManager3 {
         FE_port = fe_port;
 
         //3 bank servants
-        BankServantMap = new HashMap<String, BankServant2>();
+        BankServantMap = new HashMap<String, BankServant3>();
         //BankServant para: Bank port, RM_port, FE_port
-        BankServantMap.put("A", new BankServant2("A", port_map, RM_port, FE_port));
-        BankServantMap.put("B", new BankServant2("B", port_map, RM_port, FE_port));
-        BankServantMap.put("C", new BankServant2("C", port_map, RM_port, FE_port));
+        BankServantMap.put("A", new BankServant3("A", port_map, RM_port, FE_port));
+        BankServantMap.put("B", new BankServant3("B", port_map, RM_port, FE_port));
+        BankServantMap.put("C", new BankServant3("C", port_map, RM_port, FE_port));
 
         //receiver thread
         Thread receiver = new Thread(new RMReceiver(RM_port));
@@ -81,9 +81,9 @@ public class ReplicaManager3 {
             BankServantMap.remove("B");
             BankServantMap.remove("C");
             
-            BankServantMap.put("A", new BankServant2("A", port_map, RM_port, FE_port));
-            BankServantMap.put("B", new BankServant2("B", port_map, RM_port, FE_port));
-            BankServantMap.put("C", new BankServant2("C", port_map, RM_port, FE_port));
+            BankServantMap.put("A", new BankServant3("A", port_map, RM_port, FE_port));
+            BankServantMap.put("B", new BankServant3("B", port_map, RM_port, FE_port));
+            BankServantMap.put("C", new BankServant3("C", port_map, RM_port, FE_port));
         } catch (InterruptedException ex) {
             
         }

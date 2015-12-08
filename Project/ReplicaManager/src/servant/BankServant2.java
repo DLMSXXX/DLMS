@@ -501,7 +501,7 @@ public class BankServant2 implements BankServantInterface {
                 }
                 
                 serverSocket.close();
-                System.out.println("BankServant.class *"+serverSocket.getPort() +"* closed");
+                System.out.println("BankServant2.class *"+serverSocket.getPort() +"* closed");
 
             } catch (Exception e) {
                 System.out.println("**********************");
