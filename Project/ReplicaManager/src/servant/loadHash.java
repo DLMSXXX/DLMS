@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import model2.Loan;
 import model2.Customer;
-import rm.ReplicaManager2;
+import rm.ReplicaManagerX;
 
 /**
  *
@@ -19,7 +19,7 @@ import rm.ReplicaManager2;
  */
 public class loadHash {
 
-    public String hashToString(ReplicaManager2 rm) {
+    public String hashToString(ReplicaManagerX rm) {
         String result = null;
 
         for (String key : rm.BankServantMap.get("A").accounts.keySet()) {

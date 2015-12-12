@@ -50,9 +50,11 @@ public class dlmsClient {
     }
     
     public void testTransferLoan(){
-        sendRequest("A", "openAccount", new String[]{"li", "yu", "email", "phone", "pass"});
-        sendRequest("A", "getLoan", new String[]{"3322201", "pass", "200"});
-        sendRequest("A", "transferLoan", new String[]{"2", "B"});
+        sendRequest("A", "openAccount", new String[]{"li", "yuu", "email", "phone", "pass"});
+        //sendRequest("A", "openAccount", new String[]{"li", "yuu", "email", "phone", "pass"});
+        //sendRequest("A", "openAccount", new String[]{"li", "yuu", "email", "phone", "pass"});
+        //sendRequest("A", "getLoan", new String[]{"3322201", "pass", "200"});
+        //sendRequest("A", "transferLoan", new String[]{"2", "B"});
     }
     
     public String sendRequest(String bank, String request, String[] infoArray){
