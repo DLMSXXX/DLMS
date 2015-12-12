@@ -1,7 +1,7 @@
 package com.dlms.rm;
 
-import com.dlms.bankservant.BankServant;
-import com.dlms.model.Account;
+import com.dlms.bank.Bank;
+import com.dlms.model.Customer;
 import com.dlms.model.Loan;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,7 +22,7 @@ import net.rudp.ReliableSocketOutputStream;
 public class ReplicaManager {
     public HashMap<String, Integer> port_map;
     
-    public HashMap<String, BankServant> BankServantMap;
+    public HashMap<String, Bank> BankServantMap;
     
     private int[] other_rm;
     private String[] other_rm_host;
@@ -42,11 +42,11 @@ public class ReplicaManager {
         FE_port = fe_port;
 
         //3 bank servants
-        BankServantMap = new HashMap<String, BankServant>();
+        BankServantMap = new HashMap<String, Bank>();
         //BankServant para: Bank port, RM_port, FE_port
-        BankServantMap.put("A", new BankServant("A", port_map, RM_port, FE_port, "A0"));
-        BankServantMap.put("B", new BankServant("B", port_map, RM_port, FE_port, "B0"));
-        BankServantMap.put("C", new BankServant("C", port_map, RM_port, FE_port, "C0"));
+        BankServantMap.put("A", new Bank("A", port_map, RM_port, FE_port, "A0"));
+        BankServantMap.put("B", new Bank("B", port_map, RM_port, FE_port, "B0"));
+        BankServantMap.put("C", new Bank("C", port_map, RM_port, FE_port, "C0"));
         
         Server server = new Server(RM_port);
         server.start();
@@ -73,9 +73,9 @@ public class ReplicaManager {
             BankServantMap.remove("B");
             BankServantMap.remove("C");
             
-            BankServantMap.put("A", new BankServant("A", port_map, RM_port, FE_port, "A0"));
-            BankServantMap.put("B", new BankServant("B", port_map, RM_port, FE_port, "A0"));
-            BankServantMap.put("C", new BankServant("C", port_map, RM_port, FE_port, "A0"));
+            BankServantMap.put("A", new Bank("A", port_map, RM_port, FE_port, "A0"));
+            BankServantMap.put("B", new Bank("B", port_map, RM_port, FE_port, "A0"));
+            BankServantMap.put("C", new Bank("C", port_map, RM_port, FE_port, "A0"));
         } catch (InterruptedException ex) {
             
         }
@@ -174,9 +174,9 @@ public class ReplicaManager {
 
             for (int i = 0; i < customers.length; i++) {
                 String token[] = customers[i].split(",");
-                Account customer = new Account(token[1].trim(), token[2].trim(), token[3].trim(), token[4].trim(), token[5].trim(), 1000);
+                Customer customer = new Customer(token[1].trim(), token[2].trim(), token[3].trim(), token[4].trim(), token[5].trim(), 1000);
                 String key = Character.toString(token[1].trim().charAt(0));
-                ArrayList<Account> customerList = rm.BankServantMap.get("A").account_HashMap.get(key);
+                ArrayList<Customer> customerList = rm.BankServantMap.get("A").account_HashMap.get(key);
                 customerList.add(customer);
                 rm.BankServantMap.get("A").account_HashMap.put(key, customerList);
             }
@@ -200,9 +200,9 @@ public class ReplicaManager {
             
             for (int i = 0; i < customers2.length; i++) {
                 String token[] = customers2[i].split(",");
-                Account customer = new Account(token[1].trim(), token[2].trim(), token[3].trim(), token[4].trim(), token[5].trim(), 1000);
+                Customer customer = new Customer(token[1].trim(), token[2].trim(), token[3].trim(), token[4].trim(), token[5].trim(), 1000);
                 String key = Character.toString(token[1].trim().charAt(0));
-                ArrayList<Account> customerList = rm.BankServantMap.get("B").account_HashMap.get(key);
+                ArrayList<Customer> customerList = rm.BankServantMap.get("B").account_HashMap.get(key);
                 customerList.add(customer);
                 rm.BankServantMap.get("B").account_HashMap.put(key, customerList);
             }
@@ -226,9 +226,9 @@ public class ReplicaManager {
 
             for (int i = 0; i < customers3.length; i++) {
                 String token[] = customers3[i].split(",");
-                Account customer = new Account(token[1].trim(), token[2].trim(), token[3].trim(), token[4].trim(), token[5].trim(), 1000);
+                Customer customer = new Customer(token[1].trim(), token[2].trim(), token[3].trim(), token[4].trim(), token[5].trim(), 1000);
                 String key = Character.toString(token[1].trim().charAt(0));
-                ArrayList<Account> customerList = rm.BankServantMap.get("C").account_HashMap.get(key);
+                ArrayList<Customer> customerList = rm.BankServantMap.get("C").account_HashMap.get(key);
                 customerList.add(customer);
                 rm.BankServantMap.get("C").account_HashMap.put(key, customerList);
             }
@@ -245,8 +245,8 @@ public class ReplicaManager {
     public String hashToString2(ReplicaManager rm) {
         String result = "";
 
-        for (ArrayList<Account> account_list : rm.BankServantMap.get("A").account_HashMap.values()) {
-            for (Account account : account_list) {
+        for (ArrayList<Customer> account_list : rm.BankServantMap.get("A").account_HashMap.values()) {
+            for (Customer account : account_list) {
                 result += account.accountNumber + "," + account.firstName + "," + account.lastName + "," + account.emailAddress + "," + account.phoneNumber
                         + "," + account.password + ";";
             }
@@ -258,8 +258,8 @@ public class ReplicaManager {
 
         result += "!";
 
-        for (ArrayList<Account> account_list : rm.BankServantMap.get("B").account_HashMap.values()) {
-            for (Account account : account_list) {
+        for (ArrayList<Customer> account_list : rm.BankServantMap.get("B").account_HashMap.values()) {
+            for (Customer account : account_list) {
                 result += account.accountNumber + "," + account.firstName + "," + account.lastName + "," + account.emailAddress + "," + account.phoneNumber
                         + "," + account.password + ";";
             }
@@ -271,8 +271,8 @@ public class ReplicaManager {
 
         result += "!";
 
-        for (ArrayList<Account> account_list : rm.BankServantMap.get("C").account_HashMap.values()) {
-            for (Account account : account_list) {
+        for (ArrayList<Customer> account_list : rm.BankServantMap.get("C").account_HashMap.values()) {
+            for (Customer account : account_list) {
                 result += account.accountNumber + "," + account.firstName + "," + account.lastName + "," + account.emailAddress + "," + account.phoneNumber
                         + "," + account.password + ";";
             }
