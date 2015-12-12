@@ -33,6 +33,9 @@ public class Frontend extends dlmsPOA{
         this.RMPort_map = RMPort_map;
         this.RMHost_map = RMHost_map;
         this.FEport = fe_port;
+        
+        Server receiver = new Server(FEport);
+        receiver.start();
     }
 
     @Override
