@@ -13,13 +13,13 @@ import org.omg.CORBA.ORB;
  *
  * @author yucunli
  */
-public class dlmsClient {
+public class dlmsManagerClient {
     ORB orb;
     
     public static void main(String[] args) throws IOException{
-        dlmsClient client = new dlmsClient(args);
+        dlmsManagerClient client = new dlmsManagerClient(args);
         
-        System.out.println("Welcome to our bank system customer client!");
+        System.out.println("Welcome to our bank system manager client!");
         boolean login = true;
         while(login){
             client.console();
@@ -36,7 +36,7 @@ public class dlmsClient {
         }
     }
     
-    public dlmsClient(String[] args){
+    public dlmsManagerClient(String[] args){
         orb = ORB.init(args, null);
     }
     
@@ -56,12 +56,10 @@ public class dlmsClient {
             org.omg.CORBA.Object obj = orb.string_to_object(IOR); 
             dlms aDLMS = dlmsHelper.narrow(obj);
             
-            if(request.equals("openAccount")){
-                result = aDLMS.openAccount(bank, infoArray[0], infoArray[1], infoArray[2], infoArray[3], infoArray[4]);
-            }else if(request.equals("getLoan")){
-                result = aDLMS.getLoan(bank, infoArray[0], infoArray[1], infoArray[2]);
-            }else if(request.equals("transferLoan")){
-                result = aDLMS.transferLoan(infoArray[0], bank, infoArray[1]);
+            if(request.equals("delayPayment")){
+                result = aDLMS.delayPayment(bank, infoArray[0], infoArray[1], infoArray[2]);
+            }else if(request.equals("printCustomerInfo")){
+                result = aDLMS.printCustomerInfo(bank);
             }
             
             System.out.println(result);
@@ -76,9 +74,8 @@ public class dlmsClient {
     
     public void console() {
         System.out.println("Here are two available operation you can do on our system:");
-        System.out.println("1. Open Account");
-        System.out.println("2. Get Loan");
-        System.out.println("3. Transfer Loan");
+        System.out.println("1. delayPayment");
+        System.out.println("2. printCustomerInfo");
 
         try {
             BufferedReader bufferRead = new BufferedReader(new InputStreamReader(System.in));
@@ -98,29 +95,18 @@ public class dlmsClient {
 
             if (choice.equals("1")) {
 
-                System.out.println("Please enter your information(FirstName, LastName, Email, Phone, Password)");
+                System.out.println("Please enter your information(Bank,loanID,currentD,newD)");
                 bufferRead = new BufferedReader(new InputStreamReader(System.in));
                 String info = bufferRead.readLine();
                 String[] infoArray = info.split(",");
 
-                sendRequest(bank, "openAccount", infoArray);
+                sendRequest(bank, "delayPayment", infoArray);
 
             } else if (choice.equals("2")) {
 
-                System.out.println("Please enter your information(AccountNumber, Password, LoanAmount)");
-                bufferRead = new BufferedReader(new InputStreamReader(System.in));
-                String info = bufferRead.readLine();
-                String[] infoArray = info.split(",");
+                String[] infoArray = {};
 
-                sendRequest(bank, "getLoan", infoArray);
-
-            } else if (choice.equals("3")) {
-                System.out.println("Please enter your information(loan ID, target bank)");
-                bufferRead = new BufferedReader(new InputStreamReader(System.in));
-                String info = bufferRead.readLine();
-                String[] infoArray = info.split(",");
-
-                sendRequest(bank, "transferLoan", infoArray);
+                sendRequest(bank, "printCustomerInfo", infoArray);
 
             } else {
                 System.out.println("Illegal Input, please choice 1 or 2 or 3");
